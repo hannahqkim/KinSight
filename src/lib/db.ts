@@ -1,16 +1,17 @@
 import { Pool, type QueryResultRow } from "pg";
+import { missingDatabaseUrlMessage, resolveDatabaseUrl } from "./database-url.ts";
 
 const globalForDatabase = globalThis as typeof globalThis & {
   kinsightPostgresPool?: Pool;
 };
 
 export function databaseConfigured(): boolean {
-  return Boolean(process.env.DATABASE_URL);
+  return Boolean(resolveDatabaseUrl("runtime"));
 }
 
 function databasePool(): Pool {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) throw new Error("DATABASE_URL is not configured");
+  const connectionString = resolveDatabaseUrl("runtime");
+  if (!connectionString) throw new Error(missingDatabaseUrlMessage("runtime"));
 
   if (!globalForDatabase.kinsightPostgresPool) {
     globalForDatabase.kinsightPostgresPool = new Pool({
