@@ -4,8 +4,12 @@ import { useCallback, useRef, useState } from "react";
 import type { AudioChunk, AudioSource } from "@/lib/audio-sources";
 import type {
   CallAnalysis,
+  EvalStats,
+  EvalVerdict,
+  KinSummary,
   NumberVerification,
   PoliceReport,
+  SpamReport,
   Transcript,
   TranscriptSegment,
 } from "@/lib/schema";
@@ -43,6 +47,9 @@ export function useCallSession() {
   const [analysis, setAnalysis] = useState<CallAnalysis | null>(null);
   const [verification, setVerification] = useState<NumberVerification | null>(null);
   const [report, setReport] = useState<PoliceReport | null>(null);
+  const [kinSummary, setKinSummary] = useState<KinSummary | null>(null);
+  const [spamReport, setSpamReport] = useState<SpamReport | null>(null);
+  const [stats, setStats] = useState<EvalStats | null>(null);
   const [pending, setPending] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,6 +118,8 @@ export function useCallSession() {
       setAnalysis(null);
       setVerification(null);
       setReport(null);
+      setKinSummary(null);
+      setSpamReport(null);
       setError(null);
       setPending(0);
       setStatus("listening");
@@ -140,25 +149,94 @@ export function useCallSession() {
     setStatus("stopped");
   }, []);
 
-  const generateReport = useCallback(async () => {
-    if (!analysis) return;
-    const transcript: Transcript = {
+  const buildTranscript = useCallback(
+    (): Transcript => ({
       transcriptId: `t-${callIdRef.current}`,
       callId: callIdRef.current,
       language: "en-US",
       durationMs: segmentsRef.current.at(-1)?.endMs ?? 0,
       segments: segmentsRef.current,
-    };
+    }),
+    [],
+  );
+
+  const generateReport = useCallback(async () => {
+    if (!analysis) return;
     try {
-      setReport(await postJson<PoliceReport>("/api/reports/police", {
-        callId: callIdRef.current,
-        transcript,
-        analysis,
-      }));
+      setReport(
+        await postJson<PoliceReport>("/api/reports/police", {
+          callId: callIdRef.current,
+          transcript: buildTranscript(),
+          analysis,
+        }),
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "report failed");
+    }
+  }, [analysis, buildTranscript]);
+
+  /** The summary the family receives once the call is over. */
+  const generateKinSummary = useCallback(async () => {
+    if (!analysis) return;
+    try {
+      setKinSummary(
+        await postJson<KinSummary>("/api/reports/kin", {
+          callId: callIdRef.current,
+          transcript: buildTranscript(),
+          analysis,
+          elderName: "Mom",
+        }),
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "kin summary failed");
+    }
+  }, [analysis, buildTranscript]);
+
+  /**
+   * Write the number back to the spam database. Every household that escapes a
+   * scam makes the next household's lookup better — this is the call that does
+   * it, and it is why the registry stops being a static seed table.
+   */
+  const reportNumber = useCallback(async () => {
+    const phoneNumber = optionsRef.current?.callerNumber;
+    if (!phoneNumber) return;
+    try {
+      const data = await postJson<{ report: SpamReport; verification: NumberVerification }>(
+        "/api/registry/report",
+        {
+          phoneNumber,
+          callId: callIdRef.current,
+          tactics: analysis?.signals.map((s) => s.tactic) ?? [],
+        },
+      );
+      setSpamReport(data.report);
+      setVerification(data.verification);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "report failed");
     }
   }, [analysis]);
+
+  /** Human in the loop: the kin grades the detector, the threshold moves. */
+  const submitFeedback = useCallback(
+    async (kinVerdict: EvalVerdict, notes: string | null) => {
+      if (!analysis) return;
+      try {
+        setStats(
+          await postJson<EvalStats>("/api/evals/feedback", {
+            callId: callIdRef.current,
+            phoneNumber: optionsRef.current?.callerNumber ?? null,
+            modelProbability: analysis.fraudProbability,
+            modelRiskLevel: analysis.riskLevel,
+            kinVerdict,
+            notes,
+          }),
+        );
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "feedback failed");
+      }
+    },
+    [analysis],
+  );
 
   const reset = useCallback(() => {
     sourceRef.current?.stop();
@@ -170,6 +248,8 @@ export function useCallSession() {
     setAnalysis(null);
     setVerification(null);
     setReport(null);
+    setKinSummary(null);
+    setSpamReport(null);
     setPending(0);
     setError(null);
   }, []);
@@ -180,11 +260,17 @@ export function useCallSession() {
     analysis,
     verification,
     report,
+    kinSummary,
+    spamReport,
+    stats,
     pending,
     error,
     start,
     stop,
     reset,
     generateReport,
+    generateKinSummary,
+    reportNumber,
+    submitFeedback,
   };
 }

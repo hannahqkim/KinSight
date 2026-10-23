@@ -61,6 +61,30 @@ masked until tapped, and the yes/no comparison happens locally.
 **5 · Escapes the scam** — hang up, and `/api/reports/police` drafts a filable
 incident report from the transcript and the analysis.
 
+**6 · The family is pulled in** — the moment `fraudProbability` crosses 50%
+(`KIN_ALERT_THRESHOLD`), the kin's phone gets the alert and an invitation to join
+the call. The elder does not have to decide to ask for help while being pressured,
+which is the point: that decision is the hardest one to make mid-scam.
+
+**7 · The number goes back to the registry** — a scam verdict writes the caller's
+number to the spam database with a timestamp and the tactics seen
+(`POST /api/registry/report`). The next household's `/api/verify/number` already
+knows. This is what turns the registry from a static seed table into something
+that compounds: each escape makes the next lookup better.
+
+**8 · The kin grades the result (HITL)** — `/api/reports/kin` writes the family a
+summary, and they answer one question: was this right? Three answers, not a star
+rating, because the two ways of being wrong have opposite fixes.
+
+> **What "model retrained" actually means here.** Gemini's weights are Google's
+> and cannot be updated from this app, so saying otherwise would be a lie told to
+> judges. What the feedback really does: it scores the detector
+> (`EvalStats.accuracy`), and it moves the alert threshold —
+> false alarms raise the bar for waking the family, a missed scam lowers it. The
+> labelled rows also accumulate as the eval set that a fine-tune or a few-shot
+> prompt would need later. The threshold, the eval set, and the registry are ours;
+> the weights are not.
+
 ## Setup
 
 ```bash

@@ -320,3 +320,100 @@ export const PoliceReport = z.object({
 export type PoliceReport = z.infer<typeof PoliceReport>;
 
 export const PoliceReportResponse = apiOk(PoliceReport);
+
+/* ------------------------------------------------------------------ */
+/* 6. POST /api/registry/report — the loop closes here                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A number reported by a household that escaped a scam. This is what makes the
+ * registry get better: every call that ends in a scam verdict writes the number
+ * back, so the next household's `/api/verify/number` lookup already knows.
+ */
+export const SpamReport = z.object({
+  phoneNumber: PhoneNumber,
+  reportCount: z.number().int().positive(),
+  /** Deduplicated, so replaying one call cannot inflate the count. */
+  callIds: z.array(z.string()),
+  tactics: z.array(FraudTactic),
+  firstReportedAt: Timestamp,
+  lastReportedAt: Timestamp,
+});
+export type SpamReport = z.infer<typeof SpamReport>;
+
+export const ReportNumberRequest = z.object({
+  phoneNumber: PhoneNumber,
+  callId: z.string(),
+  tactics: z.array(FraudTactic).default([]),
+});
+export type ReportNumberRequest = z.input<typeof ReportNumberRequest>;
+
+export const ReportNumberResponse = apiOk(
+  z.object({ report: SpamReport, verification: NumberVerification }),
+);
+
+/* ------------------------------------------------------------------ */
+/* 7. POST /api/reports/kin — the summary the family receives          */
+/* ------------------------------------------------------------------ */
+
+export const KinSummaryRequest = z.object({
+  callId: z.string(),
+  transcript: Transcript,
+  analysis: CallAnalysis,
+  /** What the elder is called, for a summary that reads like a person wrote it. */
+  elderName: z.string().optional(),
+});
+export type KinSummaryRequest = z.input<typeof KinSummaryRequest>;
+
+export const KinSummary = z.object({
+  callId: z.string(),
+  /** One line, as it would appear in a push notification. */
+  headline: z.string(),
+  whatHappened: z.string(),
+  /** Concrete next steps for the family member, not the elder. */
+  whatToDo: z.array(z.string()),
+  generatedAt: Timestamp,
+});
+export type KinSummary = z.infer<typeof KinSummary>;
+
+export const KinSummaryResponse = apiOk(KinSummary);
+
+/* ------------------------------------------------------------------ */
+/* 8. POST /api/evals/feedback — human in the loop                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The kin's verdict on the detector's verdict. Three options rather than a
+ * star rating, because the two ways of being wrong have opposite fixes: a false
+ * alarm should raise the alert threshold, a missed scam should lower it.
+ */
+export const EvalVerdict = z.enum(["correct", "false_alarm", "missed_scam"]);
+export type EvalVerdict = z.infer<typeof EvalVerdict>;
+
+export const EvalFeedbackRequest = z.object({
+  callId: z.string(),
+  phoneNumber: PhoneNumber.nullable().default(null),
+  modelProbability: z.number().min(0).max(1),
+  modelRiskLevel: RiskLevel,
+  kinVerdict: EvalVerdict,
+  notes: z.string().nullable().default(null),
+});
+export type EvalFeedbackRequest = z.input<typeof EvalFeedbackRequest>;
+
+export const EvalStats = z.object({
+  total: z.number().int().nonnegative(),
+  correct: z.number().int().nonnegative(),
+  falseAlarms: z.number().int().nonnegative(),
+  missedScams: z.number().int().nonnegative(),
+  accuracy: z.number().min(0).max(1).nullable(),
+  /**
+   * Where the kin-alert threshold should sit given the feedback so far. This is
+   * what "the model gets better" actually means here: the weights are Google's
+   * and cannot be updated from this app, but the threshold, the eval set and
+   * the registry are all ours.
+   */
+  suggestedThreshold: z.number().min(0).max(1),
+});
+export type EvalStats = z.infer<typeof EvalStats>;
+
+export const EvalFeedbackResponse = apiOk(EvalStats);

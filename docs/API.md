@@ -132,6 +132,52 @@ filable; a report with invented facts is not.
 
 ---
 
+---
+
+## 6. `POST /api/registry/report` — close the loop
+
+Called when a call ends in a scam verdict. Deterministic, no model call.
+
+**Request:** `{ phoneNumber, callId, tactics[] }`
+**Response `data`:** `{ report: SpamReport, verification: NumberVerification }`
+
+`SpamReport` carries `reportCount`, `callIds[]`, `tactics[]`, `firstReportedAt`
+and `lastReportedAt`. Reports are deduplicated by `callId`, so replaying one call
+during a demo cannot inflate the count.
+
+The returned `verification` is what a fresh `/api/verify/number` would now give
+for that number — the proof the loop closed.
+
+> Never call this for a legitimate call. A number written to a fraud list is hard
+> to unwrite, and the cost lands on whoever actually owns it.
+
+---
+
+## 7. `POST /api/reports/kin` — the summary the family gets
+
+**Request:** `{ callId, transcript, analysis, elderName? }`
+**Response `data`: `KinSummary`** — `{ headline, whatHappened, whatToDo[] }`
+
+Written to the family member about their relative, never to the elder. If nothing
+was lost, that goes in the first sentence — it is what the reader most needs.
+
+---
+
+## 8. `POST /api/evals/feedback` — human in the loop
+
+**Request:** `{ callId, phoneNumber, modelProbability, modelRiskLevel, kinVerdict, notes? }`
+where `kinVerdict` is `correct | false_alarm | missed_scam`.
+
+**Response `data`: `EvalStats`** — `{ total, correct, falseAlarms, missedScams,
+accuracy, suggestedThreshold }`.
+
+`suggestedThreshold` is where the kin-alert bar should sit given all feedback so
+far, clamped to `[0.25, 0.8]` so it can neither silence the alert nor fire on
+every call. This is the honest extent of "the model learns": the weights are
+Google's, but the threshold, the eval set and the registry are ours.
+
+---
+
 ## Happy path
 
 ```
@@ -141,6 +187,11 @@ record audio
   -> POST /api/calls/analyze       -> CallAnalysis
   -> POST /api/verify/claim        -> ClaimVerdict[]        (uses extractedClaims)
   -> POST /api/reports/police      -> PoliceReport          (only if user asks)
+
+on a scam verdict, the loop closes:
+  -> POST /api/registry/report     -> SpamReport + fresh NumberVerification
+  -> POST /api/reports/kin         -> KinSummary
+  -> POST /api/evals/feedback      -> EvalStats (moves the alert threshold)
 ```
 
 ## Not in the contract yet
@@ -153,7 +204,10 @@ Decide these before building on them:
   to exist before history, family alerts, or repeat-caller detection work.
 - **Live streaming.** `partial: true` exists in the schema but the transport is
   request/response. Real-time scoring needs WebSocket or SSE.
-- **Family alert fan-out.** `hang_up_and_alert_family` is a recommended action with
-  no delivery mechanism behind it.
+- **Family alert fan-out.** The kin alert fires in the UI above
+  `KIN_ALERT_THRESHOLD`, but there is no push delivery behind it — no APNs, no SMS.
+- **The spam DB is a JSON file** (`src/lib/store.ts`, gitignored at `.data/`). It
+  survives restarts, which is enough to demo the loop, and is not a database.
+  Nothing authenticates a report, so anyone could poison the list.
 - **Contacts.** `inContacts` is passed by the client today and always `false`
   server-side. Contacts should stay on device.

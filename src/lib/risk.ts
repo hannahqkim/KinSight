@@ -23,6 +23,13 @@ export const BRAND = {
  */
 export type Zone = "normal" | "ask" | "scam";
 
+/**
+ * Above this probability the family is notified and invited onto the call.
+ * The default is the 50% on the whiteboard; kin feedback moves it, which is
+ * what `EvalStats.suggestedThreshold` reports back.
+ */
+export const KIN_ALERT_THRESHOLD = 0.5;
+
 export const ZONE: Record<
   Zone,
   { label: string; sub: string; color: string; background: string; onBackground: string }

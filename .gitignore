@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local demo store (spam DB + evals log)
+.data
+
 # vercel
 .vercel
 

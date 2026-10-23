@@ -11,9 +11,10 @@ import {
 import { PhoneFrame } from "@/components/PhoneFrame";
 import { ReportBody } from "@/components/ReportBody";
 import { ListeningWave, RiskMeter } from "@/components/RiskMeter";
+import { KinPanel } from "@/components/KinPanel";
 import { MicSource, ScriptedSource, type ScriptedSegment } from "@/lib/audio-sources";
 import { useCallSession } from "@/lib/use-call-session";
-import { BRAND, TACTIC_LABEL, ZONE, zoneFor } from "@/lib/risk";
+import { BRAND, KIN_ALERT_THRESHOLD, TACTIC_LABEL, ZONE, zoneFor } from "@/lib/risk";
 
 type Scenario = {
   id: string;
@@ -105,6 +106,8 @@ export default function Page() {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [scenarioId, setScenarioId] = useState("grandparent-scam");
   const [micError, setMicError] = useState<string | null>(null);
+  const [kinJoined, setKinJoined] = useState(false);
+  const [callEnded, setCallEnded] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const session = useCallSession();
@@ -126,6 +129,8 @@ export default function Page() {
       setMicError(null);
       setSafeWordFailed(false);
       setQuestionIndex(0);
+      setKinJoined(false);
+      setCallEnded(false);
       setMode(requested);
       setScreen("listening");
 
@@ -180,10 +185,28 @@ export default function Page() {
   const previousLine = lines.at(-2) ?? null;
   const tactics = analysis?.signals.slice(0, 3) ?? [];
 
-  const endCall = () => {
+  /** Above the threshold the family is notified — the ★ trigger on the board. */
+  const kinAlerted =
+    (analysis?.fraudProbability ?? 0) >= KIN_ALERT_THRESHOLD || safeWordFailed;
+
+  /**
+   * Ending the call is where the loop closes: the number goes back to the spam
+   * database and the family gets their summary. Both only fire on a scam
+   * verdict — a legitimate call must never be written to a fraud list.
+   */
+  const finish = (failedSafeWord: boolean) => {
+    const finalZone = failedSafeWord ? "scam" : zoneFor(analysis?.riskLevel ?? null);
+    if (failedSafeWord) setSafeWordFailed(true);
     session.stop();
+    setCallEnded(true);
     setScreen("verdict");
+    if (finalZone === "scam") {
+      void session.reportNumber();
+      void session.generateKinSummary();
+    }
   };
+
+  const endCall = () => finish(false);
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 bg-neutral-950 p-8 lg:flex-row lg:items-start lg:justify-center">
@@ -460,11 +483,7 @@ export default function Page() {
                 Yes, they knew it
               </button>
               <button
-                onClick={() => {
-                  setSafeWordFailed(true);
-                  session.stop();
-                  setScreen("verdict");
-                }}
+                onClick={() => finish(true)}
                 className={`${BTN} h-[68px] rounded-[18px] bg-transparent text-[20px]`}
                 style={{ border: `3px solid ${BRAND.slate}`, color: BRAND.slate }}
               >
@@ -532,6 +551,8 @@ export default function Page() {
               onClick={() => {
                 session.reset();
                 setSafeWordFailed(false);
+                setKinJoined(false);
+                setCallEnded(false);
                 setScreen("incoming");
               }}
               className="py-2.5 text-center text-[18px] font-bold"
@@ -568,6 +589,8 @@ export default function Page() {
               onClick={() => {
                 session.reset();
                 setSafeWordFailed(false);
+                setKinJoined(false);
+                setCallEnded(false);
                 setScreen("incoming");
               }}
               className={`${BTN} h-16 rounded-[18px] text-[19px]`}
@@ -579,8 +602,21 @@ export default function Page() {
         )}
       </PhoneFrame>
 
+      <div className="flex w-full max-w-sm shrink-0 flex-col gap-6">
+      <KinPanel
+        alerted={kinAlerted}
+        joined={kinJoined}
+        ended={callEnded}
+        analysis={analysis}
+        summary={session.kinSummary}
+        spamReport={session.spamReport}
+        stats={session.stats}
+        onJoin={() => setKinJoined(true)}
+        onFeedback={(verdict, notes) => void session.submitFeedback(verdict, notes)}
+      />
+
       {/* Demo console — operator side, deliberately not in the brand. */}
-      <aside className="w-full max-w-sm shrink-0 space-y-5 rounded-2xl bg-neutral-900 p-6 text-neutral-200 ring-1 ring-white/10">
+      <aside className="w-full space-y-5 rounded-2xl bg-neutral-900 p-6 text-neutral-200 ring-1 ring-white/10">
         <div>
           <div className="text-[13px] font-semibold uppercase tracking-wider text-neutral-500">
             Demo console
@@ -642,6 +678,24 @@ export default function Page() {
               {analysis ? analysis.fraudProbability.toFixed(2) : "—"} → {zone}
             </dd>
           </div>
+          <div className="flex justify-between">
+            <dt className="text-neutral-500">Kin alert (≥{KIN_ALERT_THRESHOLD})</dt>
+            <dd>{kinAlerted ? (kinJoined ? "joined" : "sent") : "—"}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-neutral-500">Spam DB</dt>
+            <dd className="tabular-nums">
+              {session.spamReport ? `${session.spamReport.reportCount} reports` : "—"}
+            </dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-neutral-500">Evals</dt>
+            <dd className="tabular-nums">
+              {session.stats
+                ? `${session.stats.correct}/${session.stats.total} → ${session.stats.suggestedThreshold}`
+                : "—"}
+            </dd>
+          </div>
         </dl>
 
         {error && (
@@ -656,6 +710,7 @@ export default function Page() {
           <div><span className="font-mono text-neutral-300">R</span> — reset to incoming call</div>
         </div>
       </aside>
+      </div>
     </main>
   );
 }

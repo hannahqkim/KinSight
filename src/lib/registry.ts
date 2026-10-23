@@ -12,6 +12,7 @@
  */
 import type { z } from "zod";
 import type { CallerCategory, RegistryMatch } from "@/lib/schema";
+import { getSpamReport } from "@/lib/store";
 
 type Category = z.infer<typeof CallerCategory>;
 type Match = z.infer<typeof RegistryMatch> & { officialCallbackNumber?: string };
@@ -38,7 +39,13 @@ const SEED: Record<string, Match> = {
   },
 };
 
-/** Numbers seen in active fraud campaigns. */
+/**
+ * Numbers seen in active fraud campaigns.
+ *
+ * Seed data only — the live counts come from `@/lib/store`, which households
+ * write to when a call ends in a scam verdict. A number reported during one
+ * call is flagged for every call after it.
+ */
 const FRAUD_LIST: Record<string, number> = {
   "+12025550147": 412,
   "+18885550123": 1879,
@@ -50,9 +57,10 @@ export type RegistryLookup = {
 };
 
 export function lookupNumber(phoneNumber: string): RegistryLookup {
+  const reported = getSpamReport(phoneNumber);
   return {
     match: SEED[phoneNumber] ?? null,
-    spamReportCount: FRAUD_LIST[phoneNumber] ?? 0,
+    spamReportCount: (FRAUD_LIST[phoneNumber] ?? 0) + (reported?.reportCount ?? 0),
   };
 }
 
