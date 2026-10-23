@@ -155,6 +155,8 @@ export const CallAnalysis = z.object({
   /** 0..1. The single number the UI shows. */
   fraudProbability: z.number().min(0).max(1),
   riskLevel: RiskLevel,
+  /** Deterministic UI alert flag derived from riskLevel by the server. */
+  shouldAlert: z.boolean(),
   claimedCategory: CallerCategory,
   signals: z.array(FraudSignal),
   /** Factual assertions worth checking, e.g. "I am Officer Reed, badge 4471". */
