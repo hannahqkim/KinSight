@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local editor / agent config
+.claude
+
 # local demo store (spam DB + evals log)
 .data
 
