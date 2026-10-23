@@ -132,9 +132,14 @@ export const AnalyzeCallRequest = z.object({
   /** Set when the call is still live and we are scoring incrementally. */
   partial: z.boolean().default(false),
   /**
-   * True if the household agreed a safe word during setup. Deliberately a
+   * True if the household agreed a family word during setup. Deliberately a
    * boolean: the word itself is never sent to the server or the model. The app
    * asks the question, the user confirms the answer locally.
+   *
+   * The UI calls this the "family word" (see docs/design/README.md — "safe
+   * word" carries a sexual meaning for many adults). The field name is kept as
+   * `safeWordAvailable` because teammates already code against it; renaming the
+   * contract is a separate call for the team to make.
    */
   safeWordAvailable: z.boolean().default(false),
 }).refine((v) => Boolean(v.text) || Boolean(v.segments?.length), {
@@ -161,9 +166,9 @@ export const CallAnalysis = z.object({
    * shortest first. A real caller answers these without friction; a scammer
    * stalls, deflects, or escalates — which is the point.
    *
-   * When the household has a safe word, the model is told only that one EXISTS
-   * (see `safeWordAvailable`) so it can suggest asking for it. The word itself
-   * never leaves the device.
+   * When the household has a family word, the model is told only that one
+   * EXISTS (see `safeWordAvailable`) so it can suggest asking for it. The word
+   * itself never leaves the device.
    */
   suggestedQuestions: z.array(z.string()),
   recommendedAction: z.enum([

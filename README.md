@@ -25,65 +25,48 @@ merely cautious.
 
 ## User journey
 
-The five steps the demo walks through, and what the product is doing at each.
+Natalie (34) invites her mom Margaret, they agree a family word, and when an
+unknown number calls Margaret, KinSight listens with her and messages Natalie
+once scam risk passes 50%. Twelve screens, following
+[`docs/design/`](docs/design/).
 
-**1 · Family sets up the app** — they agree a safe word together. It is written to
-`localStorage` and never leaves the device: not to our server, not to the model.
-The analyze endpoint is told only that one *exists* (`safeWordAvailable: true`),
-which is enough for it to suggest asking.
+**Natalie sets it up (1–3)** — who she's inviting, the family word, and a
+recorded hello. The family word is written to `localStorage` and never leaves
+the device: not to our server, not to the model. The analyze endpoint is told
+only that one *exists*, which is enough for it to suggest asking.
 
-**2 · The phone rings** — an unknown number. `POST /api/verify/number` checks it
-against the trusted registry and the fraud list. No model call, so the verdict is
-on screen before the caller finishes their first sentence.
+**Margaret accepts (4–5)** — the invite, then her family word, with the one rule
+that matters: never say it first, let the caller say it.
 
-**3 · The elder hears a story** — they put the call on speaker and tap one button.
+**The call (6–8)** — it rings *through KinSight*, she answers on speaker, and a
+banner offers help. The listening screen shows a 20-bar meter and a word —
+never a percentage. A score invites her to argue with it while the caller is
+still talking. Past 50%, "KinSight sent Natalie a message."
 
-> **Gap #1 (the notification question).** No mobile OS hands a third-party app the
-> audio of a live call — iOS forbids it outright. So the transcript half cannot be
-> automatic; it needs speakerphone and a tap, and the UI is built around that one
-> big button rather than pretending otherwise. The *number* half can be automatic:
-> iOS 18's Live Caller ID Lookup API lets an app supply caller ID and blocking
-> information for incoming calls, which maps directly onto `/api/verify/number`.
-> That is the shipping path, and it is the honest answer when a judge asks.
+**The question (9, 9b)** — one line to say out loud, the family word first when
+the caller claims to be family. The word is shown only to her. If they knew it,
+she gets a softer screen that still says to check with Natalie before sending
+money; if they didn't, she goes to the verdict.
 
-**4 · Safe intervention** — audio is captured in ~8 second windows and run through
-`/api/transcribe` → `/api/calls/analyze`. The screen shows three things, in order
-of how fast a frightened person can use them:
+**Verdict and after (10–11)** — "Hang up." then "You did the right thing."
 
-- the probability, climbing as the caller escalates
-- **what to ask right now** (`suggestedQuestions`) — a real caller answers these
-  without friction; a scammer stalls, deflects, or escalates
-- the named tactics behind the score, each quoting the caller's own words
+**Natalie's side (12)** — the live alert carries the percentage, because she is
+34 and reading on a commute, and it helps her judge how hard to interrupt. She
+can call Mom or push "Natalie says: Hang up" onto Margaret's screen.
 
-When the caller claims to be family, the safe-word challenge appears. The word is
-masked until tapped, and the yes/no comparison happens locally.
-
-**5 · Escapes the scam** — hang up, and `/api/reports/police` drafts a filable
-incident report from the transcript and the analysis.
-
-**6 · The family is pulled in** — the moment `fraudProbability` crosses 50%
-(`KIN_ALERT_THRESHOLD`), the kin's phone gets the alert and an invitation to join
-the call. The elder does not have to decide to ask for help while being pressured,
-which is the point: that decision is the hardest one to make mid-scam.
-
-**7 · The number goes back to the registry** — a scam verdict writes the caller's
-number to the spam database with a timestamp and the tactics seen
-(`POST /api/registry/report`). The next household's `/api/verify/number` already
-knows. This is what turns the registry from a static seed table into something
-that compounds: each escape makes the next lookup better.
-
-**8 · The kin grades the result (HITL)** — `/api/reports/kin` writes the family a
-summary, and they answer one question: was this right? Three answers, not a star
-rating, because the two ways of being wrong have opposite fixes.
+**The loop closes** — a scam verdict writes the number back to the registry with
+a timestamp and the tactics seen (`POST /api/registry/report`), so the next
+family's lookup already knows. `/api/reports/kin` writes Natalie a summary, and
+she answers one question: was this right?
 
 > **What "model retrained" actually means here.** Gemini's weights are Google's
 > and cannot be updated from this app, so saying otherwise would be a lie told to
 > judges. What the feedback really does: it scores the detector
-> (`EvalStats.accuracy`), and it moves the alert threshold —
-> false alarms raise the bar for waking the family, a missed scam lowers it. The
-> labelled rows also accumulate as the eval set that a fine-tune or a few-shot
-> prompt would need later. The threshold, the eval set, and the registry are ours;
-> the weights are not.
+> (`EvalStats.accuracy`), and it moves the alert threshold — false alarms raise
+> the bar for waking the family, a missed scam lowers it. The labelled rows also
+> accumulate as the eval set that a fine-tune or a few-shot prompt would need
+> later. The threshold, the eval set, and the registry are ours; the weights
+> are not.
 
 ## Setup
 
@@ -169,22 +152,32 @@ can mock against those types without waiting on the backend.
 
 ## Design
 
-Screens follow [`docs/design/`](docs/design/) — five colours, Inter Tight, and
-one main action per screen. Three of the open questions that document raises are
-now closed:
+Built to [`docs/design/`](docs/design/): five colours plus white and a slate
+wash, **SF Pro** (`-apple-system`, so it follows the text size Margaret set on
+her iPhone), one instruction and one 80pt button per screen, and the words from
+that document's copy table — "family word" never "safe word", "the caller" never
+"he", "Unknown number" everywhere.
 
-- **Four risk levels, three meter zones.** Mapped in `src/lib/risk.ts`:
-  `likely_fraud` and `critical` both read as "Likely a scam." The difference
-  between them changes `recommendedAction`, not what the elder is told — at that
-  point the advice is identical, and a fourth wording would only slow them down.
-- **`partial: true` had no transport.** It does now: ~8 second windows, queued and
-  drained serially, re-scoring the accumulated transcript each time.
-- **No screen for `/api/reports/police` or `officialCallbackNumber`.** Both are
-  built — the report after the scam verdict, the callback number as a teal row on
-  the listening screen when the registry knows the real one.
+Design decisions made here, which that document left open:
 
-Still open: safe word and family setup have no endpoint, auth or storage; the
-safe word lives in `localStorage` and is deliberately never sent anywhere.
+- **Four risk levels, three meter zones.** `likely_fraud` and `critical` both
+  read as "Likely a scam." The difference changes `recommendedAction`, not what
+  Margaret is told; a fourth wording would only slow her down.
+- **Contrast on peach and teal.** White on peach is 2.95:1 and white on teal is
+  2.4:1, so small text never sits on either — the teal screen uses Dark Slate,
+  and anything below 24pt goes in a white card.
+- **The ask screen is a tap, not automatic.** It keeps the presenter in control
+  of when that screen lands rather than having it fire mid-sentence. One line to
+  flip if the team prefers it automatic.
+
+Closed from that document's open list: `partial: true` now has a transport
+(~8 second windows, queued and drained serially); `/api/reports/police` and
+`officialCallbackNumber` both have screens.
+
+Still open and worth deciding before a pilot: the schema field is still
+`safeWordAvailable` while the UI says "family word" — renaming a published
+contract field is the team's call, not mine. Consent to transcribe callers is a
+legal question. Call routing needs a native app and a phone number service.
 
 ## Known gaps
 
