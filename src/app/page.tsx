@@ -232,12 +232,13 @@ export default function Page() {
     return () => window.removeEventListener("keydown", onKey);
   }, [session, startCall, ringPhone]);
 
-  const { analysis, segments, report, pending, error } = session;
-  const zone = safeWordFailed ? "scam" : zoneFor(analysis?.riskLevel ?? null);
+  const { analysis, segments, report, pending, error, verification } = session;
+  const knownScam = verification?.verdict === "known_fraud";
+  const zone = safeWordFailed || knownScam ? "scam" : zoneFor(analysis?.riskLevel ?? null);
 
   /** Above the threshold the family is notified. */
   const kinAlerted =
-    (analysis?.fraudProbability ?? 0) >= KIN_ALERT_THRESHOLD || safeWordFailed;
+    (analysis?.fraudProbability ?? 0) >= KIN_ALERT_THRESHOLD || safeWordFailed || knownScam;
 
   /**
    * Screen 10 takes over the call screen on its own: when the risk reaches the
@@ -256,7 +257,7 @@ export default function Page() {
    * verdict — a legitimate call must never be written to a fraud list.
    */
   const finish = () => {
-    const scam = safeWordFailed || kinSaysHangUp || zone === "scam";
+    const scam = knownScam || safeWordFailed || kinSaysHangUp || analysis?.shouldAlert === true;
     session.stop();
     setCallEnded(true);
     setEndedAsScam(scam);
@@ -825,7 +826,11 @@ export default function Page() {
             </Svg>
             <h1 className="m-0 text-[72px] font-bold leading-[72px] tracking-[-0.02em]">Hang up.</h1>
             <div className="text-[30px] font-bold leading-[36px]">
-              {kinSaysHangUp ? `${KIN} says: Hang up.` : `KinSight sent ${KIN} a message.`}
+              {knownScam
+                ? `This number is in KinSight's scam database (${verification.spamReportCount} ${verification.spamReportCount === 1 ? "report" : "reports"}).`
+                : kinSaysHangUp
+                  ? `${KIN} says: Hang up.`
+                  : `KinSight sent ${KIN} a message.`}
             </div>
             <div className="flex-grow" />
             <button onClick={finish} className={ELDER_BTN} style={{ background: BRAND.slate, color: BRAND.white }}>
