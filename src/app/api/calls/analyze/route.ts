@@ -2,11 +2,13 @@ import { z } from "zod";
 import { parseBody, ok, handleError, nowIso } from "@/lib/http";
 import { AnalyzeCallRequest, CallAnalysis, CallerCategory, FraudSignal } from "@/lib/schema";
 import { FAST_MODEL, generateStructured } from "@/lib/gemini";
+import { shouldAlertForRisk } from "@/lib/alerts";
 
 /** What the model produces. The server owns callId, modelVersion, analyzedAt. */
 const ModelOutput = CallAnalysis.omit({
   callId: true,
   callerNumber: true,
+  shouldAlert: true,
   modelVersion: true,
   analyzedAt: true,
 }).extend({
@@ -77,6 +79,7 @@ export async function POST(request: Request) {
         ...analysis,
         callId,
         callerNumber,
+        shouldAlert: shouldAlertForRisk(analysis.riskLevel),
         modelVersion: FAST_MODEL,
         analyzedAt: nowIso(),
       }),
