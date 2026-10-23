@@ -56,8 +56,8 @@ export type RegistryLookup = {
   spamReportCount: number;
 };
 
-export function lookupNumber(phoneNumber: string): RegistryLookup {
-  const reported = getSpamReport(phoneNumber);
+export async function lookupNumber(phoneNumber: string): Promise<RegistryLookup> {
+  const reported = await getSpamReport(phoneNumber);
   return {
     match: SEED[phoneNumber] ?? null,
     spamReportCount: (FRAUD_LIST[phoneNumber] ?? 0) + (reported?.reportCount ?? 0),

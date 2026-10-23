@@ -1,16 +1,30 @@
 /**
  * Durable state for the feedback loop: the spam database and the evals log.
  *
- * A JSON file, not a database. It exists so the loop on the whiteboard is real
- * rather than mimed — a number reported during the demo is still flagged after
- * a restart, and the kin's feedback is still counted. Swap this module for
+ * One JSON document, not a database. It exists so the loop on the whiteboard is
+ * real rather than mimed — a number reported during the demo is still flagged
+ * after a restart, and the kin's feedback is still counted. Swap this module for
  * Postgres (or Firestore) and nothing above it changes.
+ *
+ * Where the document lives:
+ * - Redis, when the Upstash / Vercel KV REST credentials are set. This is the
+ *   only option that is durable on Vercel.
+ * - Otherwise a file. Locally that is `.data/`; on Vercel the deployment's
+ *   filesystem is read-only, so it falls back to the OS temp dir, which works
+ *   but only lasts as long as one warm server instance.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import type { EvalStats, EvalVerdict, FraudTactic, SpamReport } from "@/lib/schema";
 
-const FILE = join(process.cwd(), ".data", "kinsight.json");
+const FILE = process.env.VERCEL
+  ? join(tmpdir(), "kinsight", "kinsight.json")
+  : join(process.cwd(), ".data", "kinsight.json");
+
+const REDIS_URL = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
+const REDIS_TOKEN = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+const REDIS_KEY = "kinsight:db";
 
 type EvalRow = {
   callId: string;
@@ -27,16 +41,41 @@ type Db = {
   evals: EvalRow[];
 };
 
-function read(): Db {
+const EMPTY = (): Db => ({ spam: {}, evals: [] });
+
+/** One command against the Upstash REST API, e.g. `["GET", key]`. */
+async function redis(command: string[]): Promise<unknown> {
+  const response = await fetch(REDIS_URL!, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+    body: JSON.stringify(command),
+    cache: "no-store",
+  });
+  const json = (await response.json()) as { result?: unknown; error?: string };
+  if (!response.ok || json.error) {
+    throw new Error(`store: redis ${command[0]} failed: ${json.error ?? response.status}`);
+  }
+  return json.result;
+}
+
+async function read(): Promise<Db> {
+  if (REDIS_URL && REDIS_TOKEN) {
+    const raw = await redis(["GET", REDIS_KEY]);
+    return typeof raw === "string" ? (JSON.parse(raw) as Db) : EMPTY();
+  }
   try {
     return JSON.parse(readFileSync(FILE, "utf8")) as Db;
   } catch {
     // Missing or unreadable file is the empty state, not an error.
-    return { spam: {}, evals: [] };
+    return EMPTY();
   }
 }
 
-function write(db: Db): void {
+async function write(db: Db): Promise<void> {
+  if (REDIS_URL && REDIS_TOKEN) {
+    await redis(["SET", REDIS_KEY, JSON.stringify(db)]);
+    return;
+  }
   mkdirSync(dirname(FILE), { recursive: true });
   writeFileSync(FILE, JSON.stringify(db, null, 2));
 }
@@ -46,12 +85,12 @@ function write(db: Db): void {
  * callId does not inflate the count, because a demo that is run five times
  * should not claim five independent victims.
  */
-export function recordSpamReport(input: {
+export async function recordSpamReport(input: {
   phoneNumber: string;
   callId: string;
   tactics: FraudTactic[];
-}): SpamReport {
-  const db = read();
+}): Promise<SpamReport> {
+  const db = await read();
   const now = new Date().toISOString();
   const existing = db.spam[input.phoneNumber];
 
@@ -77,29 +116,29 @@ export function recordSpamReport(input: {
       };
 
   db.spam[input.phoneNumber] = report;
-  write(db);
+  await write(db);
   return report;
 }
 
-export function getSpamReport(phoneNumber: string): SpamReport | null {
-  return read().spam[phoneNumber] ?? null;
+export async function getSpamReport(phoneNumber: string): Promise<SpamReport | null> {
+  return (await read()).spam[phoneNumber] ?? null;
 }
 
-export function listSpamReports(): SpamReport[] {
-  return Object.values(read().spam).sort((a, b) =>
+export async function listSpamReports(): Promise<SpamReport[]> {
+  return Object.values((await read()).spam).sort((a, b) =>
     b.lastReportedAt.localeCompare(a.lastReportedAt),
   );
 }
 
-export function recordEval(row: Omit<EvalRow, "submittedAt">): EvalStats {
-  const db = read();
+export async function recordEval(row: Omit<EvalRow, "submittedAt">): Promise<EvalStats> {
+  const db = await read();
   db.evals.push({ ...row, submittedAt: new Date().toISOString() });
-  write(db);
+  await write(db);
   return statsFrom(db.evals);
 }
 
-export function evalStats(): EvalStats {
-  return statsFrom(read().evals);
+export async function evalStats(): Promise<EvalStats> {
+  return statsFrom((await read()).evals);
 }
 
 /**

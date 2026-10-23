@@ -206,8 +206,11 @@ Decide these before building on them:
   request/response. Real-time scoring needs WebSocket or SSE.
 - **Family alert fan-out.** The kin alert fires in the UI above
   `KIN_ALERT_THRESHOLD`, but there is no push delivery behind it — no APNs, no SMS.
-- **The spam DB is a JSON file** (`src/lib/store.ts`, gitignored at `.data/`). It
-  survives restarts, which is enough to demo the loop, and is not a database.
-  Nothing authenticates a report, so anyone could poison the list.
+- **The spam DB is one JSON document** (`src/lib/store.ts`). It goes to Redis when
+  `KV_REST_API_URL` and `KV_REST_API_TOKEN` (or the `UPSTASH_REDIS_REST_*` pair)
+  are set, which is what connecting an Upstash store in Vercel adds. Without them
+  it is a file: `.data/` locally, the OS temp dir on Vercel, where it lasts only
+  as long as one warm server instance. Nothing authenticates a report, so anyone
+  could poison the list.
 - **Contacts.** `inContacts` is passed by the client today and always `false`
   server-side. Contacts should stay on device.

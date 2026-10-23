@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     if ("response" in parsed) return parsed.response;
     const { callId, claims, callerNumber } = parsed.data;
 
-    const lookup = callerNumber ? lookupNumber(callerNumber) : null;
+    const lookup = callerNumber ? await lookupNumber(callerNumber) : null;
     const registryEvidence = lookup?.match
       ? `Registry: ${callerNumber} is listed as "${lookup.match.name}" (${lookup.match.category}), source ${lookup.match.source}.`
       : lookup && lookup.spamReportCount > 0
