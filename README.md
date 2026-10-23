@@ -73,35 +73,11 @@ she answers one question: was this right?
 ```bash
 npm install
 cp .env.example .env.local   # then paste your key
-npm run db:migrate           # see the database note below
 npm run dev
 ```
 
 Get a Gemini key at <https://aistudio.google.com/apikey>. `.env.local` is
 gitignored; never commit a real key.
-
-Scam-number reports and kin feedback go to PostgreSQL; the app never writes to
-Vercel's read-only filesystem.
-
-You do not have to set `DATABASE_URL` yourself. Connecting a Supabase store in
-Vercel writes `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING` and
-`POSTGRES_PRISMA_URL`, prefixed with the store's name (`kinsight_POSTGRES_URL`
-and so on), and `src/lib/database-url.ts` matches on the suffix, so any prefix
-works. An explicit `DATABASE_URL` still wins if you set one.
-
-Which connection it picks depends on the caller, because the two want opposite
-things. The app takes the transaction pooler (port 6543): serverless instances
-each open their own pool and would otherwise exhaust the database's slots.
-Migrations take the direct connection (port 5432), since DDL through a
-transaction pooler is unreliable.
-
-`npm run db:migrate` reads `.env.local`, not the Vercel environment, so pull the
-variables down first:
-
-```bash
-vercel env pull .env.local
-npm run db:migrate
-```
 
 Model availability varies by key — `gemini-2.5-*` is already retired for newly
 issued ones. Defaults are `gemini-3.8-flash` (scoring, claims, transcription) and
@@ -159,7 +135,6 @@ analysis falls behind the queue catches up rather than the call developing holes
 src/lib/schema.ts          the API contract — zod schemas + inferred types
 src/lib/gemini.ts          Gemini client, model selection, structured output
 src/lib/registry.ts        trusted-number lookup (DEMO SEED — replace before pilot)
-src/lib/suspicious-calls.ts PostgreSQL suspicious-call history and reputation lookup
 src/lib/http.ts            request parsing, response envelope, error mapping
 src/lib/risk.ts            brand tokens, risk-zone mapping, tactic labels
 src/lib/audio-sources.ts   microphone and scripted playback, one interface
@@ -206,10 +181,10 @@ legal question. Call routing needs a native app and a phone number service.
 
 ## Known gaps
 
-The trusted-organization registry is a seed table, not real data. Suspicious call
-reports and kin feedback persist in PostgreSQL, but records are not associated
-with authenticated users yet. Treat this as shared demo data, not production-safe
-storage. `docs/API.md` lists the remaining contract gaps in full.
+The registry is a seed table, not real data. Nothing is authenticated, nothing is
+persisted, and `partial: true` call scoring has no streaming transport behind it
+yet. `docs/API.md` lists these in full under "Not in the contract yet" — read it
+before building on top.
 
 ## Try one endpoint
 
