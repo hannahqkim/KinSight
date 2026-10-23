@@ -1,57 +1,85 @@
 # Google Stitch prompts
 
-Paste the base prompt first, then add one screen prompt at a time. If Stitch
-drifts on colour or type, paste the base prompt again before the next screen.
+Paste the base prompt first, then one screen prompt at a time. If Stitch drifts
+on colour, type or wording, paste the base prompt again before the next screen.
 
 ## Base prompt
 
 ```
-Design a mobile app called KinSight: real-time scam-call protection for older adults (70+) who live alone. While a call is on speakerphone, the app listens, turns speech into text, scores the chance of fraud, and tells the elder in plain words what to do.
+Design an iPhone app called KinSight. An adult daughter, Natalie (34), invites her mother, Margaret (70s), who lives alone. Calls from unknown numbers ring Margaret through the KinSight app; KinSight listens, tells her in plain words what to do, and messages Natalie if scam risk passes 50%.
 
-Audience: older adults with weaker eyesight and hands, often stressed by a caller pressuring them. The screen must be the calmest thing in the room.
+Colours: only these five plus white, no other shades:
+- Banana Cream #FFF07C (ask first, the family word)
+- Dark Slate Grey #1C5253 (all text on white, buttons)
+- Burnt Peach #E07A5F (hang up)
+- Muted Teal #81B29A (they knew the word)
+- Cool Horizon #79ADDC (family, people)
+- White #FFFFFF backgrounds; card surfaces #F1F5F5
+Text on peach or teal must be very large; small text sits on white cards.
 
-Colours: use ONLY these five plus white, no tints, no extra shades:
-- Banana Cream #FFF07C (ask first, highlights)
-- Dark Slate Grey #1C5253 (primary: all text on white, buttons, headers)
-- Burnt Peach #E07A5F (likely scam, hang up)
-- Muted Teal #81B29A (safe)
-- Cool Horizon #79ADDC (listening, family info)
-- White #FFFFFF (backgrounds, cards)
-White text on peach, teal and blue only for large headlines; small text on those colours sits in a white card in Dark Slate Grey.
+Type: SF Pro, the iPhone system font. Margaret's screens: headings 36-48pt bold, verdicts 60-72pt bold, body and buttons 20-30pt semibold. Natalie's screens: body 16-18pt.
 
-Type: Inter Tight only. Headlines in Black (900) weight, very large, very tight letter-spacing (-0.05em), line-height 0.9, ending with a full stop ("This looks safe."). Body in Medium (500), 18px minimum. Small labels in UPPERCASE Medium, 13px, wide letter-spacing (0.06em).
+Rules for Margaret's screens: one instruction, one big button (80pt tall, full width, 16pt radius), twelve words at most per line, never a percentage, no gradients, no emoji, no grey text.
 
-Logo: the wordmark "KinSight." in Dark Slate Grey, Inter Tight Black, tight tracking.
-
-Rules:
-- One main action per screen, buttons at least 64px tall, full width, 18px radius.
-- Plain words, never percentages or jargon. 6th-grade reading level.
-- Every risk state uses a colour AND an icon AND a word, and fills the whole screen.
-- No gradients, no emoji, no grey text. Flat cards, white or 2px outlined in a palette colour.
+Words: say "family word", never "safe word". Say "the caller" or "they", never "he". KinSight never calls her itself: write "Through KinSight", never "KinSight call". Never promise safety: "help you spot scams", not "keep you safe".
 ```
 
-## Screens
+## Natalie's onboarding
 
 ```
-Screen: Family setup. Caregiver onboarding, white background, "STEP 2 OF 4" label and a progress bar (slate filled, Cool Horizon remaining). Headline: "Choose a family safe word." Body: "KinSight will remind Mom to ask for it when a caller says they're family." A "SAFE WORD" label over a text field with a 2px slate border. A card outlined in Cool Horizon with "BACKUP QUESTIONS", two questions with blue checkmarks, and "+ Add a question". Full-width slate button: "Next: trusted contacts".
+Screen 1, Natalie: white. "1 of 3". Heading "Who are you inviting?". Line: "When a number she doesn't know calls, KinSight listens with her, tells her what to do, and alerts you if it sounds like a scam." Four choice buttons in a 2x2 grid: Mom (selected, slate), Dad, Grandparent, Someone else. Fields "First name" (Margaret) and "iPhone number". Link "Pick from my contacts". Slate button "Next".
 ```
 
 ```
-Screen: Before you answer. Full-screen Dark Slate Grey. Top: a white notification card with "KINSIGHT · NOW", "Unknown number calling" and "Tap here before you answer. I'll listen with you." Center: a phone icon in a Cool Horizon circle, the caller number in huge Black type, "NOT IN YOUR CONTACTS". A card outlined in Cool Horizon: "Answer on speaker so KinSight can hear the caller too." Banana Cream button with slate text: "Answer with KinSight". Banana text link: "Ignore this call".
+Screen 2, Natalie: white. Back button, "2 of 3". Heading "Pick a family word". Line: "If a caller says they're family, KinSight has Mom ask for this word. Real family knows it. Scammers don't." Field "Family word" (Bluebird) with "Suggest one" link. Hint: "Easy for her to remember, hard to guess. Skip pet names, streets and birthdays, because those are online." A banana card with a checkbox: "Tell family who might call her. Say it out loud, not in a text or post." Slate button "Next".
 ```
 
 ```
-Screen: Listening live. White background. Header: a small animated waveform in Cool Horizon and "LISTENING WITH YOU". Hero: a Dark Slate Grey card, "SCAM RISK, LIVE", a big Black-weight status word that changes colour ("Sounds normal." in teal / "Something's off." in banana / "Likely a scam." in peach), one instruction line, and a level meter of 24 vertical bars getting taller left to right, lit teal, then banana, then peach as risk rises. Below: a card outlined in slate, "THE CALLER IS SAYING", the previous sentence in Cool Horizon and the latest in bold slate, plus a Banana Cream chip like "HEARD: ASKS FOR MONEY". Three outlined check rows with coloured dots: "The story", "Who they are", "Call back". Bottom outlined slate button: "Call my family instead".
+Screen 3, Natalie: white. Back button, "3 of 3". Heading "Record a hello for Mom". Line: "She'll hear this first. Say why you set this up, in your own words." A card with a banana microphone button, "Record", "Up to 30 seconds", and "Don't say the family word. KinSight shows it to her privately." A blue card: "Call her first. She'll get a text from you with a link. A surprise link can look like a scam, so tell her it's coming." Slate button "Send invite to Mom", link "Skip the hello".
+```
+
+## Margaret's onboarding
+
+```
+Screen 4, Margaret: white. Natalie's photo and "From Natalie". Heading "Natalie wants to help you spot phone scams." Banana button "Hear her message". Three icon rows: "When a number you don't know calls, KinSight listens too." / "Calls from your contacts ring like always." / "If it sounds like a scam, it tells you and Natalie." Slate button "Yes, turn it on", link "Call Natalie first".
 ```
 
 ```
-Screen: Ask first. Full-screen Banana Cream, slate text. Question-mark icon and "ASK FIRST". Huge headline: "Say this out loud." A white card holding one question in bold slate: "Before I do anything, what's our family word?" and "Only your real family knows it." Two big buttons: slate filled "Yes, they knew it" and slate outlined "No, or they dodged it". Text link: "Give me a different question".
+Screen 5, Margaret: white. Label "Your family word". A banana card with "Bluebird" very large and "Chosen by Natalie". Line: "Never say it first. Let the caller say it." Small lines: "KinSight will show it when you need it." and "KinSight never calls you itself." Slate button "Got it".
+```
+
+## The call
+
+```
+Screen 6, Margaret: iPhone's incoming call screen, dark slate. "Through KinSight", "Unknown number", "(312) 847-1928", and a banana pill "KinSight will listen with you". Decline and Accept buttons.
 ```
 
 ```
-Screen: Likely scam. Full-screen Burnt Peach, white headline. Large white warning-triangle icon. Huge headline: "This is likely a scam." Subline: "Hang up now. You haven't done anything wrong." A white card in slate text: "WHY KINSIGHT THINKS SO", "They didn't know the family word.", "They asked for money and secrecy." Slate button: "Hang up". White text link: "Call Sarah (your daughter)".
+Screen 7, Margaret: iPhone in-call screen, dark slate. A white notification at the top: "KinSight is listening" / "Tap for help with this call." "Unknown number", "0:04". Buttons Mute, Speaker, and a banana KinSight button. End call.
 ```
 
 ```
-Screen: Looks safe. Full-screen Muted Teal, white headline. Large white check-circle icon. Huge headline: "This looks safe." Subline: "They knew the family word. Still, never send money on this call." A white card in slate text: "IF THEY ASK FOR MONEY LATER", "Hang up and call them back on the number saved in your phone." Slate button: "Keep listening with me". White text link: "I'm done, close KinSight".
+Screen 8, Margaret: white. "Unknown number" and the number. Huge "Listening." A meter of 20 bars growing taller left to right, lit teal, then banana, then peach as risk rises, with no numbers. A status line that changes: "Sounds OK so far." / "Be careful. Don't give money or personal details." / "This sounds like a scam." When risk passes 50%, a banana card with Natalie's photo: "KinSight sent Natalie a message." Slate button "Hang up".
+```
+
+```
+Screen 9, Margaret: banana. "Ask:" then huge "'What's our family word?'". A white card: "Only you can see this" / "Bluebird". Slate button 'They said "Bluebird"', white button "They didn't".
+```
+
+```
+Screen 9b, Margaret: muted teal, slate text. Check icon. Heading "They knew the word." White card: "Before you send money, check with Natalie." A small white strip with a low meter and "Listening." Slate button "Back to call".
+```
+
+```
+Screen 10, Margaret: burnt peach, white text. Warning icon. Huge "Hang up." Line "KinSight sent Natalie a message." Slate button "Hang up".
+```
+
+```
+Screen 11, Margaret: white. Teal check tile. Heading "You did the right thing." Line "Don't call that number back." Slate button "Call Natalie", link "Close".
+```
+
+## Natalie's alert
+
+```
+Screen 12, Natalie: white. Peach flag "Live now". Heading "Mom may be on a scam call". A slate card with "Likely scam" large in banana and "62% risk" small. Line: "The caller says he's Danny. He wants $2,400 for bail today." Slate button "Call Mom", banana button "Tell Mom to hang up", and under it: "She sees 'Natalie says: Hang up' on her KinSight screen."
 ```

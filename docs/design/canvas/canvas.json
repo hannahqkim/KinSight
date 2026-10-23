@@ -1,23 +1,201 @@
 {
   "v": 3,
-  "createdOnFiles": {"v": 1, "at": "2026-10-23T12:00:00Z"},
-  "title": "KinSight Brand & Journey",
-  "launch": {"view": "canvas"},
-  "pages": [],
+  "attachments": {},
   "boards": {
-    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 1040, "title": "Brand foundations"},
-    "Journey.dc.html": {"x": 1360, "y": 0, "w": 1680, "h": 1040, "title": "User journey"},
-    "S1-Setup.dc.html": {"x": 0, "y": 1460, "w": 390, "h": 844, "title": "1 · Family setup"},
-    "S2-Incoming.dc.html": {"x": 470, "y": 1460, "w": 390, "h": 844, "title": "2 · Unknown caller"},
-    "S3-Listening.dc.html": {"x": 940, "y": 1460, "w": 390, "h": 844, "title": "3 · Listening (live)", "is_interactive": true},
-    "S4-Ask.dc.html": {"x": 1410, "y": 1460, "w": 390, "h": 844, "title": "4 · Ask this"},
-    "S5-Scam.dc.html": {"x": 1880, "y": 1460, "w": 390, "h": 844, "title": "5a · Likely scam"},
-    "S6-Safe.dc.html": {"x": 2350, "y": 1460, "w": 390, "h": 844, "title": "5b · Looks safe"}
+    "K0-Brand.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 900,
+      "title": "Brand",
+      "page": "simple"
+    },
+    "K0-How.dc.html": {
+      "x": 1360,
+      "y": 0,
+      "w": 1280,
+      "h": 900,
+      "title": "How it works on iPhone",
+      "page": "simple"
+    },
+    "K-Journey.dc.html": {
+      "x": 0,
+      "y": 1280,
+      "w": 5560,
+      "h": 200,
+      "title": "Journey, step by step (each step sits above its screen)",
+      "page": "simple"
+    },
+    "K1-SarahSetup.dc.html": {
+      "x": 0,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Natalie: who she's inviting",
+      "page": "simple",
+      "is_interactive": true
+    },
+    "K1b-FamilyWord.dc.html": {
+      "x": 470,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "2 · Natalie: pick a family word",
+      "page": "simple",
+      "is_interactive": true
+    },
+    "K1c-Send.dc.html": {
+      "x": 940,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "3 · Natalie: hello, call first, send",
+      "page": "simple",
+      "is_interactive": true
+    },
+    "K2-MomInvite.dc.html": {
+      "x": 1410,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "4 · Margaret: turns it on",
+      "page": "simple"
+    },
+    "K2b-MomWord.dc.html": {
+      "x": 1880,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "5 · Margaret: learns the family word",
+      "page": "simple"
+    },
+    "J1-Ringing.dc.html": {
+      "x": 2350,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "6 · Margaret: phone rings (iPhone's call screen, KinSight sets the words)",
+      "page": "simple"
+    },
+    "J2-Answered.dc.html": {
+      "x": 2820,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "7 · Margaret: answers, KinSight prompts her",
+      "page": "simple"
+    },
+    "K3-Listening.dc.html": {
+      "x": 3290,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "8 · Margaret: app open, listening (live)",
+      "is_interactive": true,
+      "page": "simple"
+    },
+    "K4-Ask.dc.html": {
+      "x": 3760,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "9 · Margaret: ask for the family word",
+      "page": "simple",
+      "is_interactive": true
+    },
+    "K5-HangUp.dc.html": {
+      "x": 4230,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "10 · Margaret: hang up",
+      "page": "simple",
+      "is_interactive": true
+    },
+    "K5b-AfterHangUp.dc.html": {
+      "x": 4700,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "11 · Margaret: you did the right thing",
+      "page": "simple"
+    },
+    "K6-SarahAlert.dc.html": {
+      "x": 5170,
+      "y": 1600,
+      "w": 390,
+      "h": 844,
+      "title": "12 · Natalie: alerted past 50%",
+      "page": "simple"
+    },
+    "K4b-KnewWord.dc.html": {
+      "x": 3760,
+      "y": 2564,
+      "w": 390,
+      "h": 844,
+      "title": "9b · Margaret: they knew the word",
+      "page": "simple"
+    }
   },
-  "order": ["Main.dc.html", "Journey.dc.html", "S1-Setup.dc.html", "S2-Incoming.dc.html", "S3-Listening.dc.html", "S4-Ask.dc.html", "S5-Scam.dc.html", "S6-Safe.dc.html"],
+  "createdOnFiles": {
+    "at": "2026-10-23T12:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas",
+    "page": "simple"
+  },
   "notes": {
-    "t1": {"x": 0, "y": -300, "text": "KinSight — brand & journey", "kind": "title1", "maxW": 3040},
-    "t2": {"x": 0, "y": 1160, "text": "Elder screens, call to verdict", "kind": "title1", "maxW": 2740}
+    "n1": {
+      "kind": "title1",
+      "maxW": 2640,
+      "text": "KinSight — the simple flow",
+      "x": 0,
+      "y": -300,
+      "page": "simple"
+    },
+    "n2": {
+      "kind": "title1",
+      "maxW": 5560,
+      "text": "Margaret and Natalie, from invite to hang up",
+      "x": 0,
+      "y": 1020,
+      "page": "simple"
+    },
+    "n3": {
+      "x": 4230,
+      "y": 2564,
+      "w": 360,
+      "size": "l",
+      "fill": "teal",
+      "page": "simple",
+      "text": "Branch from screen 9: if the caller says the family word, Margaret sees 9b instead of Hang up. If they then ask for money or secrecy, the warnings come back."
+    }
   },
-  "designSystems": []
+  "order": [
+    "K0-Brand.dc.html",
+    "K0-How.dc.html",
+    "K-Journey.dc.html",
+    "K1-SarahSetup.dc.html",
+    "K1b-FamilyWord.dc.html",
+    "K1c-Send.dc.html",
+    "K2-MomInvite.dc.html",
+    "K2b-MomWord.dc.html",
+    "J1-Ringing.dc.html",
+    "J2-Answered.dc.html",
+    "K3-Listening.dc.html",
+    "K4-Ask.dc.html",
+    "K5-HangUp.dc.html",
+    "K5b-AfterHangUp.dc.html",
+    "K6-SarahAlert.dc.html",
+    "K4b-KnewWord.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "simple",
+      "name": "Simple flow"
+    }
+  ],
+  "title": "KinSight Brand & Journey"
 }

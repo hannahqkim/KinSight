@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How KinSight works on iPhone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#1C5253}a:hover{color:#1C5253}
+</style>
+</helmet>
+<div style="width: 1280px; height: 900px; box-sizing: border-box; padding: 64px; background: #FFFFFF; color: #1C5253; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif; display: flex; flex-direction: column; gap: 40px">
+  <div style="font-weight: 700; font-size: 48px; line-height: 48px; letter-spacing: -0.02em">How it works on iPhone</div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+    <div style="border-radius: 24px; background: #79ADDC; color: #1C5253; padding: 24px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; box-sizing: border-box">
+      <div style="font-size: 36px; line-height: 40px; font-weight: 700">1</div>
+      <div style="font-size: 20px; line-height: 28px; font-weight: 700">Natalie invites Margaret</div>
+      <div style="font-size: 16px; line-height: 24px; font-weight: 600">From her own phone. Margaret taps yes.</div>
+    </div>
+    <div style="border-radius: 24px; background: #1C5253; color: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; box-sizing: border-box">
+      <div style="font-size: 36px; line-height: 40px; font-weight: 700">2</div>
+      <div style="font-size: 20px; line-height: 28px; font-weight: 700">Strangers reach KinSight first</div>
+      <div style="font-size: 16px; line-height: 24px; font-weight: 500">iPhone silences unknown numbers. The carrier forwards them to KinSight's line instead of voicemail.</div>
+    </div>
+    <div style="border-radius: 24px; background: #1C5253; color: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; box-sizing: border-box">
+      <div style="font-size: 36px; line-height: 40px; font-weight: 700">3</div>
+      <div style="font-size: 20px; line-height: 28px; font-weight: 700">KinSight rings Margaret and listens</div>
+      <div style="font-size: 16px; line-height: 24px; font-weight: 500">The call comes through the KinSight app, like a WhatsApp call, so KinSight can hear it.</div>
+    </div>
+    <div style="border-radius: 24px; background: #FFF07C; color: #1C5253; padding: 24px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; box-sizing: border-box">
+      <div style="font-size: 36px; line-height: 40px; font-weight: 700">4</div>
+      <div style="font-size: 20px; line-height: 28px; font-weight: 700">Past 50%, Natalie is told</div>
+      <div style="font-size: 16px; line-height: 24px; font-weight: 500">A push alert on Natalie's phone. Margaret sees one instruction.</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 18px; line-height: 28px; font-weight: 700">iPhone lets a third-party app</div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 18px; line-height: 28px; font-weight: 500">
+        <div style="border-radius: 16px; background: #F1F5F5; padding: 12px 16px">Ring like a phone call and carry the audio (CallKit, VoIP push)</div>
+        <div style="border-radius: 16px; background: #F1F5F5; padding: 12px 16px">Get unknown callers through Silence Unknown Callers plus carrier call forwarding</div>
+        <div style="border-radius: 16px; background: #F1F5F5; padding: 12px 16px">Label or block numbers on the ring screen (Call Directory, Live Caller ID Lookup)</div>
+        <div style="border-radius: 16px; background: #F1F5F5; padding: 12px 16px">Send push alerts to Natalie</div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 18px; line-height: 28px; font-weight: 700">iPhone does not let any app</div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 18px; line-height: 28px; font-weight: 500">
+        <div style="border-radius: 16px; background: #FFFFFF; border: 2px solid #E07A5F; padding: 10px 14px">Listen to a normal phone call, even on speaker</div>
+        <div style="border-radius: 16px; background: #FFFFFF; border: 2px solid #E07A5F; padding: 10px 14px">Use the microphone while a normal call is on</div>
+        <div style="border-radius: 16px; background: #FFFFFF; border: 2px solid #E07A5F; padding: 10px 14px">Pop up a message when a normal call rings</div>
+        <div style="border-radius: 16px; background: #FFFFFF; border: 2px solid #E07A5F; padding: 10px 14px">Read the call log or the caller's number</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size: 16px; line-height: 24px; font-weight: 600">So KinSight becomes the phone line for unknown numbers only. Contacts ring as normal and stay private. This needs a native iPhone app and a phone number service, not the web app alone.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
