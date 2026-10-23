@@ -34,6 +34,16 @@ npm run dev
 Get a Gemini key at <https://aistudio.google.com/apikey>. `.env.local` is
 gitignored; never commit a real key.
 
+Model availability varies by key — `gemini-2.5-*` is already retired for newly
+issued ones. Defaults are `gemini-3.8-flash` (scoring, claims, transcription) and
+`gemini-pro-latest` (report drafting), both overridable in `.env.local`. To see
+what a key can actually call:
+
+```bash
+curl -s -H "x-goog-api-key: $GEMINI_API_KEY" \
+  https://generativelanguage.googleapis.com/v1beta/models | jq -r '.models[].name'
+```
+
 ```bash
 npm run typecheck   # tsc --noEmit
 npm run build

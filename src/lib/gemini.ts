@@ -22,10 +22,23 @@ export function gemini(): GoogleGenAI {
   return client;
 }
 
-/** Fast path: call scoring, claim checks, transcription. */
-export const FAST_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
-/** Slow path: police report drafting, where quality beats latency. */
-export const DEEP_MODEL = process.env.GEMINI_MODEL_DEEP ?? "gemini-2.5-pro";
+/**
+ * Fast path: call scoring, claim checks, transcription.
+ *
+ * Pinned rather than aliased because Google's own deprecation notice names this
+ * model. Note that `gemini-3.5-transcribe` looks like the obvious choice for the
+ * transcription route but rejects JSON mode ("JSON mode is not enabled for this
+ * model"), and every route here depends on structured output.
+ */
+export const FAST_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.8-flash";
+
+/**
+ * Deep path: police report drafting, where quality beats latency.
+ *
+ * Aliased on purpose. The gemini-2.5-* pins this project started on were retired
+ * mid-build ("no longer available to new users"); the alias survives that.
+ */
+export const DEEP_MODEL = process.env.GEMINI_MODEL_DEEP ?? "gemini-pro-latest";
 
 /**
  * zod schema -> the JSON Schema dialect Gemini accepts.
@@ -66,18 +79,45 @@ export async function generateStructured<T extends z.ZodTypeAny>({
   schema: T;
   parts?: Array<{ inlineData: { mimeType: string; data: string } }>;
 }): Promise<z.infer<T>> {
-  const response = await gemini().models.generateContent({
-    model,
-    contents: [{ role: "user", parts: [{ text: prompt }, ...(parts ?? [])] }],
-    config: {
-      systemInstruction,
-      responseMimeType: "application/json",
-      responseJsonSchema: geminiSchema(schema),
-      temperature: 0.1,
-    },
-  });
+  const response = await withRetry(() =>
+    gemini().models.generateContent({
+      model,
+      contents: [{ role: "user", parts: [{ text: prompt }, ...(parts ?? [])] }],
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseJsonSchema: geminiSchema(schema),
+        temperature: 0.1,
+      },
+    }),
+  );
 
   const text = response.text;
   if (!text) throw new Error("Gemini returned an empty response");
   return schema.parse(JSON.parse(text));
+}
+
+/** Transient upstream failures seen in practice: 500 INTERNAL, 503 UNAVAILABLE,
+ *  429 RESOURCE_EXHAUSTED. Anything else (404 retired model, 400 bad schema,
+ *  403 bad key) is a real bug and must surface immediately, not after 3 waits. */
+function isTransient(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /\b(429|500|503)\b|UNAVAILABLE|RESOURCE_EXHAUSTED|Internal error|overloaded/i.test(
+    message,
+  );
+}
+
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastError: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (i === attempts - 1 || !isTransient(error)) throw error;
+      // 400ms, 1200ms — enough for a blip, short enough for a live demo.
+      await new Promise((resolve) => setTimeout(resolve, 400 * 3 ** i));
+    }
+  }
+  throw lastError;
 }
