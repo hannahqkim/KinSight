@@ -73,35 +73,17 @@ she answers one question: was this right?
 ```bash
 npm install
 cp .env.example .env.local   # then paste your key
-npm run db:migrate           # see the database note below
+npm run db:migrate           # after setting DATABASE_URL
 npm run dev
 ```
 
 Get a Gemini key at <https://aistudio.google.com/apikey>. `.env.local` is
 gitignored; never commit a real key.
 
-Scam-number reports and kin feedback go to PostgreSQL; the app never writes to
-Vercel's read-only filesystem.
-
-You do not have to set `DATABASE_URL` yourself. Connecting a Supabase store in
-Vercel writes `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING` and
-`POSTGRES_PRISMA_URL`, prefixed with the store's name (`kinsight_POSTGRES_URL`
-and so on), and `src/lib/database-url.ts` matches on the suffix, so any prefix
-works. An explicit `DATABASE_URL` still wins if you set one.
-
-Which connection it picks depends on the caller, because the two want opposite
-things. The app takes the transaction pooler (port 6543): serverless instances
-each open their own pool and would otherwise exhaust the database's slots.
-Migrations take the direct connection (port 5432), since DDL through a
-transaction pooler is unreliable.
-
-`npm run db:migrate` reads `.env.local`, not the Vercel environment, so pull the
-variables down first:
-
-```bash
-vercel env pull .env.local
-npm run db:migrate
-```
+`DATABASE_URL` must point to PostgreSQL (the Supabase transaction pooler is
+appropriate for Vercel). Set the same variable in the Vercel project before
+deploying. Scam-number reports and kin feedback are stored there; the app does
+not write to Vercel's read-only filesystem.
 
 Model availability varies by key — `gemini-2.5-*` is already retired for newly
 issued ones. Defaults are `gemini-3.8-flash` (scoring, claims, transcription) and
