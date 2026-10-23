@@ -21,6 +21,7 @@ export const PhoneNumber = z.string().regex(/^\+[1-9]\d{6,14}$/, {
 export const Timestamp = z.string();
 
 export const RiskLevel = z.enum(["safe", "caution", "likely_fraud", "critical"]);
+export type RiskLevel = z.infer<typeof RiskLevel>;
 
 /** What the caller claims to be. Drives which registry we verify against. */
 export const CallerCategory = z.enum([
@@ -34,6 +35,7 @@ export const CallerCategory = z.enum([
   "telemarketer",
   "unknown",
 ]);
+export type CallerCategory = z.infer<typeof CallerCategory>;
 
 /** Fraud tactics the detector is trained to name. Closed set on purpose: the
  *  UI maps each one to a plain-language explanation for the user. */
@@ -57,6 +59,7 @@ export const FraudTactic = z.enum([
   "charity_scam",
   "caller_id_spoof_indicator",
 ]);
+export type FraudTactic = z.infer<typeof FraudTactic>;
 
 export const Speaker = z.enum(["caller", "user", "unknown"]);
 
@@ -66,6 +69,7 @@ export const TranscriptSegment = z.object({
   startMs: z.number().int().nonnegative(),
   endMs: z.number().int().nonnegative(),
 });
+export type TranscriptSegment = z.infer<typeof TranscriptSegment>;
 
 export const Transcript = z.object({
   transcriptId: z.string(),
@@ -74,6 +78,7 @@ export const Transcript = z.object({
   durationMs: z.number().int().nonnegative(),
   segments: z.array(TranscriptSegment),
 });
+export type Transcript = z.infer<typeof Transcript>;
 
 /* ------------------------------------------------------------------ */
 /* Envelope — every route returns exactly one of these                 */
@@ -114,6 +119,7 @@ export const FraudSignal = z.object({
   /** 0..1 — how sure the model is this tactic is present. */
   confidence: z.number().min(0).max(1),
 });
+export type FraudSignal = z.infer<typeof FraudSignal>;
 
 export const AnalyzeCallRequest = z.object({
   callId: z.string(),
@@ -125,6 +131,12 @@ export const AnalyzeCallRequest = z.object({
   inContacts: z.boolean().default(false),
   /** Set when the call is still live and we are scoring incrementally. */
   partial: z.boolean().default(false),
+  /**
+   * True if the household agreed a safe word during setup. Deliberately a
+   * boolean: the word itself is never sent to the server or the model. The app
+   * asks the question, the user confirms the answer locally.
+   */
+  safeWordAvailable: z.boolean().default(false),
 }).refine((v) => Boolean(v.text) || Boolean(v.segments?.length), {
   message: "provide `text` or non-empty `segments`",
 });
@@ -144,6 +156,16 @@ export const CallAnalysis = z.object({
   extractedClaims: z.array(z.string()),
   /** One sentence, 6th-grade reading level, shown to the elder directly. */
   plainLanguageWarning: z.string(),
+  /**
+   * What to ask the caller RIGHT NOW, in the user's own voice. Two or three,
+   * shortest first. A real caller answers these without friction; a scammer
+   * stalls, deflects, or escalates — which is the point.
+   *
+   * When the household has a safe word, the model is told only that one EXISTS
+   * (see `safeWordAvailable`) so it can suggest asking for it. The word itself
+   * never leaves the device.
+   */
+  suggestedQuestions: z.array(z.string()),
   recommendedAction: z.enum([
     "no_action",
     "stay_alert",
@@ -239,7 +261,16 @@ export const TranscribeRequest = z.object({
   callId: z.string(),
   /** Base64 audio payload. Keep under ~15MB; larger uploads need the Files API. */
   audioBase64: z.string(),
-  mimeType: z.enum(["audio/wav", "audio/mp3", "audio/mpeg", "audio/webm", "audio/ogg", "audio/m4a"]),
+  mimeType: z.enum([
+    "audio/wav",
+    "audio/mp3",
+    "audio/mpeg",
+    "audio/webm",
+    "audio/ogg",
+    "audio/m4a",
+    // Safari's MediaRecorder emits this one.
+    "audio/mp4",
+  ]),
   language: z.string().default("en-US"),
 });
 export type TranscribeRequest = z.input<typeof TranscribeRequest>;

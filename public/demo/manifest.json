@@ -1,0 +1,60 @@
+[
+  {
+    "id": "grandparent-scam",
+    "label": "Grandparent scam",
+    "blurb": "A caller claiming to be a grandson, escalating to a wire transfer.",
+    "callerNumber": "+18885550123",
+    "inContacts": false,
+    "segments": [
+      {
+        "url": "/demo/grandparent-scam/01.wav",
+        "text": "Grandma? Hi, it's me. Your grandson. Can you hear me okay? Sorry, I know it's early.",
+        "durationMs": 6092
+      },
+      {
+        "url": "/demo/grandparent-scam/02.wav",
+        "text": "Listen, I'm in some trouble. I was in a car accident last night, and the other driver is pressing charges. I'm at the police station right now.",
+        "durationMs": 7783
+      },
+      {
+        "url": "/demo/grandparent-scam/03.wav",
+        "text": "Please don't tell Mom and Dad. I'm so embarrassed about this. Promise me you won't call them. Promise me, okay?",
+        "durationMs": 6593
+      },
+      {
+        "url": "/demo/grandparent-scam/04.wav",
+        "text": "My lawyer says if we post bond today they'll release me this afternoon. It's eight thousand dollars. I know it's a lot of money.",
+        "durationMs": 6401
+      },
+      {
+        "url": "/demo/grandparent-scam/05.wav",
+        "text": "He says the fastest way is a wire transfer. I'm going to put him on and he'll give you the account number. Please, grandma, I need you to do this right now.",
+        "durationMs": 8402
+      },
+      {
+        "url": "/demo/grandparent-scam/06.wav",
+        "text": "No, don't hang up. Don't call anybody. If you hang up they're going to move me to the county jail tonight. Please just stay on the line with me.",
+        "durationMs": 7855
+      }
+    ]
+  },
+  {
+    "id": "doctor-reminder",
+    "label": "Doctor's office (legitimate)",
+    "blurb": "A real appointment reminder. The detector should stay quiet.",
+    "callerNumber": "+16505550111",
+    "inContacts": true,
+    "segments": [
+      {
+        "url": "/demo/doctor-reminder/01.wav",
+        "text": "Good morning, this is Maria calling from Doctor Alvarez's office at Stanford Health Care.",
+        "durationMs": 5122
+      },
+      {
+        "url": "/demo/doctor-reminder/02.wav",
+        "text": "I'm just calling to remind you about your cardiology follow-up this Thursday at two fifteen. If you need to reschedule, give us a call back at the main number. And the doctor asked me to remind you to bring your current medication list. Thanks, see you Thursday.",
+        "durationMs": 14937
+      }
+    ]
+  }
+]

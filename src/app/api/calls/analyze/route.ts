@@ -28,13 +28,21 @@ Rules:
 - plainLanguageWarning: one short sentence, 6th-grade reading level, second person,
   no jargon. If the call looks safe, say so plainly.
 - Escalate recommendedAction to report_to_authorities only when money or credentials
-  have already changed hands.`;
+  have already changed hands.
+- suggestedQuestions: two or three things to ask the caller right now, written in
+  the user's own voice ("Can you give me your case number?"). Shortest first. Pick
+  questions a legitimate caller answers easily and a scammer cannot. If the call
+  looks safe, return an empty list rather than manufacturing suspicion.
+- If a household safe word is available, and the caller claims to be a relative or
+  close contact, make asking for the safe word the FIRST suggested question. You
+  are never told what the word is and must not guess at it.`;
 
 export async function POST(request: Request) {
   try {
     const parsed = await parseBody(request, AnalyzeCallRequest);
     if ("response" in parsed) return parsed.response;
-    const { callId, text, segments, callerNumber, inContacts, partial } = parsed.data;
+    const { callId, text, segments, callerNumber, inContacts, partial, safeWordAvailable } =
+      parsed.data;
 
     const transcriptText =
       text ?? (segments ?? []).map((s) => `${s.speaker}: ${s.text}`).join("\n");
@@ -42,6 +50,7 @@ export async function POST(request: Request) {
     const prompt = [
       `Caller number: ${callerNumber ?? "withheld / unknown"}`,
       `In the user's contacts: ${inContacts ? "yes" : "no"}`,
+      `Household safe word available: ${safeWordAvailable ? "yes" : "no"}`,
       partial ? "This call is STILL IN PROGRESS — score what is available so far." : "",
       "",
       "Transcript:",
