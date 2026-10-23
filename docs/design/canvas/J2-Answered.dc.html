@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Margaret answers and KinSight prompts her</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#FFFFFF}a:hover{color:#FFF07C}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 48px 16px 64px; background: #1C5253; color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif; display: flex; flex-direction: column; gap: 32px">
+  <button style="border-radius: 24px; border: none; background: #FFFFFF; color: #1C5253; padding: 16px; display: flex; flex-direction: column; gap: 8px; font-family: inherit; text-align: left">
+    <span style="display: flex; align-items: center; gap: 8px; width: 100%">
+      <span style="width: 32px; height: 32px; border-radius: 8px; background: #FFF07C; color: #1C5253; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; line-height: 24px">K</span>
+      <span style="flex-grow: 1; font-size: 16px; line-height: 24px; font-weight: 600">KinSight</span>
+      <span style="font-size: 16px; line-height: 24px; font-weight: 500">now</span>
+    </span>
+    <span style="font-size: 24px; line-height: 32px; font-weight: 700">KinSight is listening</span>
+    <span style="font-size: 20px; line-height: 28px; font-weight: 500">Tap for help with this call.</span>
+  </button>
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center">
+    <div style="font-weight: 700; font-size: 30px; line-height: 36px; letter-spacing: -0.02em">Unknown number</div>
+    <div style="font-size: 20px; line-height: 28px; font-weight: 500; font-variant-numeric: tabular-nums">0:04</div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 0 16px">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <button aria-label="Mute" style="width: 72px; height: 72px; border-radius: 9999px; border: none; background: #2D6566; display: flex; align-items: center; justify-content: center; padding: 0">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11 C5.5 14.6 8.4 17.5 12 17.5 C15.6 17.5 18.5 14.6 18.5 11"></path><path d="M12 17.5 V21"></path></svg>
+      </button>
+      <span style="font-size: 16px; line-height: 24px; font-weight: 600">Mute</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <button aria-label="Speaker" style="width: 72px; height: 72px; border-radius: 9999px; border: none; background: #2D6566; display: flex; align-items: center; justify-content: center; padding: 0">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5 H8 L13 5 V19 L8 14.5 H4 Z"></path><path d="M16.5 9 C17.6 10.4 17.6 13.6 16.5 15"></path><path d="M19 6.5 C21.2 9.2 21.2 14.8 19 17.5"></path></svg>
+      </button>
+      <span style="font-size: 16px; line-height: 24px; font-weight: 600">Speaker</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <button aria-label="Open KinSight" style="width: 72px; height: 72px; border-radius: 9999px; border: none; background: #FFF07C; color: #1C5253; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; font-weight: 700; font-size: 30px; line-height: 36px">K</button>
+      <span style="font-size: 16px; line-height: 24px; font-weight: 700">KinSight</span>
+    </div>
+  </div>
+  <div style="display: flex; justify-content: center">
+    <button aria-label="End call" style="width: 80px; height: 80px; border-radius: 9999px; border: none; background: #E07A5F; display: flex; align-items: center; justify-content: center; padding: 0">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 14 C7.6 9.3 16.4 9.3 21.5 14 L19.4 16.6 L16 15.2 V12.6 C13.4 11.8 10.6 11.8 8 12.6 V15.2 L4.6 16.6 Z"></path></svg>
+    </button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

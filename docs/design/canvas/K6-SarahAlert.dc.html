@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Natalie is alerted past 50%</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#1C5253}a:hover{color:#1C5253}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 64px 24px 32px; background: #FFFFFF; color: #1C5253; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif; display: flex; flex-direction: column; gap: 24px">
+  <span style="align-self: flex-start; border-radius: 6px; background: #E07A5F; color: #FFFFFF; padding: 4px 8px; font-size: 14px; line-height: 20px; font-weight: 700">Live now</span>
+  <h1 style="margin: 0; font-weight: 700; font-size: 36px; line-height: 40px; letter-spacing: -0.02em">Mom may be on a scam call</h1>
+
+  <div style="border-radius: 24px; background: #1C5253; color: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+    <div style="font-weight: 700; font-size: 48px; line-height: 48px; letter-spacing: -0.02em; color: #FFF07C">Likely scam</div>
+    <div style="font-size: 18px; line-height: 28px; font-weight: 600; font-variant-numeric: tabular-nums">62% risk</div>
+  </div>
+
+  <p style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 500">The caller says he's Danny. He wants $2,400 for bail today.</p>
+
+  <div style="flex-grow: 1"></div>
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <button style="height: 56px; border-radius: 16px; border: none; background: #1C5253; color: #FFFFFF; font-size: 18px; line-height: 28px; font-weight: 600; font-family: inherit">Call Mom</button>
+    <button style="height: 56px; border-radius: 16px; border: none; background: #FFF07C; color: #1C5253; font-size: 18px; line-height: 28px; font-weight: 600; font-family: inherit">Tell Mom to hang up</button>
+    <div style="text-align: center; font-size: 16px; line-height: 24px; font-weight: 500">She sees "Natalie says: Hang up" on her KinSight screen.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

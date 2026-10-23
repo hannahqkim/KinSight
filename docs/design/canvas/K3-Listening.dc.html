@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Margaret on the call, KinSight listening</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#1C5253}a:hover{color:#1C5253}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 64px 24px 40px; background: #FFFFFF; color: #1C5253; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif; display: flex; flex-direction: column; gap: 32px">
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <div style="font-size: 20px; line-height: 28px; font-weight: 600">Unknown number</div>
+    <div style="font-size: 24px; line-height: 32px; font-weight: 700; font-variant-numeric: tabular-nums">(312) 847-1928</div>
+  </div>
+
+  <div role="meter" aria-label="Scam risk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{pct}}" aria-valuetext="{{word}}" style="display: flex; flex-direction: column; gap: 24px">
+    <h1 style="margin: 0; font-weight: 700; font-size: 60px; line-height: 60px; letter-spacing: -0.02em">Listening.</h1>
+    <div style="display: flex; gap: 4px; align-items: flex-end; height: 72px" aria-hidden="true">
+      <sc-for list="{{ticks}}" as="tick" hint-placeholder-count="20">
+        <div style="flex: 1; height: {{tick.h}}px; border-radius: 3px; background: {{tick.bg}}; transition: background 300ms cubic-bezier(0.32,0.72,0,1)"></div>
+      </sc-for>
+    </div>
+    <div style="font-size: 30px; line-height: 36px; font-weight: 700; color: {{wordColor}}; transition: color 700ms cubic-bezier(0.32,0.72,0,1)">{{word}}</div>
+  </div>
+
+  <sc-if value="{{alerted}}" hint-placeholder-val="{{ true }}">
+    <div role="status" style="border-radius: 24px; background: #FFF07C; padding: 16px; display: flex; align-items: center; gap: 16px">
+      <div style="width: 48px; height: 48px; border-radius: 8px; background: #79ADDC; color: #1C5253; display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 32px; font-weight: 700; flex-shrink: 0">N</div>
+      <div style="font-size: 24px; line-height: 32px; font-weight: 700">KinSight sent Natalie a message.</div>
+    </div>
+  </sc-if>
+
+  <div style="flex-grow: 1"></div>
+  <button style="height: 80px; border-radius: 16px; border: none; background: #1C5253; color: #FFFFFF; font-size: 24px; line-height: 32px; font-weight: 700; font-family: inherit">Hang up</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  targets() { return [0.12, 0.2, 0.3, 0.42, 0.58, 0.7, 0.82, 0.9]; }
+  componentDidMount() {
+    const n = this.targets().length;
+    this.stepTimer = setInterval(() => {
+      this.setState((s) => {
+        const step = ((s.step || 0) + 1) % (n + 2);
+        return step === 0 ? { step, alerted: false } : { step };
+      });
+    }, 2200);
+    this.wobbleTimer = setInterval(() => {
+      this.setState((s) => {
+        const T = this.targets();
+        const target = T[Math.min(s.step || 0, T.length - 1)];
+        const cur = s.level == null ? 0.08 : s.level;
+        const next = Math.max(0.03, Math.min(0.99, cur + (target - cur) * 0.18 + (Math.random() - 0.5) * 0.06));
+        return { level: next, alerted: s.alerted || next >= 0.5 };
+      });
+    }, 160);
+  }
+  componentWillUnmount() {
+    clearInterval(this.stepTimer);
+    clearInterval(this.wobbleTimer);
+  }
+  renderVals() {
+    const s = this.state || {};
+    const level = s.level == null ? 0.08 : s.level;
+    const lit = Math.round(level * 20);
+    const ticks = Array.from({ length: 20 }, (_, i) => ({
+      h: 20 + i * 2.6,
+      bg: i < lit ? (i < 7 ? '#81B29A' : i < 13 ? '#FFF07C' : '#E07A5F') : '#F1F5F5'
+    }));
+    let word = 'Sounds OK so far.', wordColor = '#1C5253';
+    if (level >= 0.66) { word = 'This sounds like a scam.'; wordColor = '#E07A5F'; }
+    else if (level >= 0.34) { word = 'Be careful. Don\'t give money or personal details.'; }
+    return { ticks, word, wordColor, pct: Math.round(level * 100), alerted: !!s.alerted };
+  }
+}
+</script>
+</body>
+</html>
