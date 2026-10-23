@@ -16,10 +16,10 @@ Five colours plus white. Card surfaces use Slate wash.
 
 | Colour | Hex | Role |
 |---|---|---|
-| Banana Cream | `#FFF07C` | Ask first, the family word, Natalie messaged |
+| Banana Cream | `#FFF07C` | Ask first, the KinCode, Natalie messaged |
 | Dark Slate Grey | `#1C5253` | Text, buttons, calls |
 | Burnt Peach | `#E07A5F` | Hang up |
-| Muted Teal | `#81B29A` | They knew the word, sounds OK |
+| Muted Teal | `#81B29A` | Kinfirmed, sounds OK |
 | Cool Horizon | `#79ADDC` | Family, people |
 | White | `#FFFFFF` | Backgrounds |
 | Slate wash | `#F1F5F5` | Card surfaces (Dark Slate Grey at 6% on white) |
@@ -52,7 +52,8 @@ Test every screen at the largest accessibility text size.
 
 | Use | Never | Why |
 |---|---|---|
-| family word | safe word, password | "Safe word" has a sexual meaning for many adults; "password" is what she must never give out. |
+| KinCode on screen; "family code" out loud | safe word, password, family word | "Safe word" has a sexual meaning for many adults; "password" is what she must never give out. The question is said to the caller, who may not know the app's name, so it stays plain: "What's our family code?" |
+| Kinfirmed | Verified, safe | The caller knew the KinCode. It proves they know the code, not that the request is real, so it always comes with "check with Natalie before you send money". |
 | the caller, they | he, him | KinSight can't know who is calling. Natalie's screen may repeat a claim: "says he's Danny". |
 | Through KinSight | KinSight call | KinSight never calls her itself, so a scammer can't pose as KinSight. |
 | Unknown number | Unknown caller, stranger | A fact, and the same on every screen. |
@@ -67,15 +68,15 @@ are legacy; the screens say Natalie.
 | # | Who | File | Screen |
 |---|---|---|---|
 | 1 | Natalie | `K1-SarahSetup` | "Who are you inviting?" Mom, Dad, Grandparent, Someone else; first name; iPhone number |
-| 2 | Natalie | `K1b-FamilyWord` | "Pick a family word"; required "Tell family who might call her" |
+| 2 | Natalie | `K1b-FamilyWord` | "Pick your KinCode"; required "Tell family who might call her" |
 | 3 | Natalie | `K1c-Send` | "Record a hello for Mom"; "Call her first"; "Send invite to Mom" |
 | 4 | Margaret | `K2-MomInvite` | "Natalie wants to help you spot phone scams."; "Yes, turn it on"; "Call Natalie first" |
-| 5 | Margaret | `K2b-MomWord` | "Your family word: Bluebird"; "Never say it first. Let the caller say it." |
+| 5 | Margaret | `K2b-MomWord` | "Your KinCode: Bluebird"; "Never say it first. Let the caller say it." |
 | 6 | Margaret | `J1-Ringing` | iPhone's call screen: "Through KinSight", "Unknown number", "KinSight will listen with you" |
 | 7 | Margaret | `J2-Answered` | Push banner: "KinSight is listening. Tap for help with this call." |
 | 8 | Margaret | `K3-Listening` | "Listening." with the live meter; past 50% "KinSight sent Natalie a message." |
-| 9 | Margaret | `K4-Ask` | "Ask: 'What's our family word?'"; answer under "Only you can see this" |
-| 9b | Margaret | `K4b-KnewWord` | "They knew the word. Before you send money, check with Natalie." |
+| 9 | Margaret | `K4-Ask` | "Ask: 'What's our family code?'"; the KinCode under "Only you can see this" |
+| 9b | Margaret | `K4b-KnewWord` | "Kinfirmed. They knew your KinCode." "Before you send money, check with Natalie." |
 | 10 | Margaret | `K5-HangUp` | "Hang up. KinSight sent Natalie a message." |
 | 11 | Margaret | `K5b-AfterHangUp` | "You did the right thing. Don't call that number back." |
 | 12 | Natalie | `K6-SarahAlert` | "Mom may be on a scam call"; "Likely scam", 62% risk; "Call Mom" |
@@ -105,7 +106,7 @@ the copy above. Where it still differs:
   for a demo but not possible during a real iPhone call.
 - Recording Natalie's hello and the "Call Natalie" buttons need the iPhone
   app; the demo says so on screen instead.
-- The family word stays in the browser and is never sent to the server; the
+- The KinCode stays in the browser and is never sent to the server; the
   schema's `safeWordAvailable` field keeps its name.
 - Natalie's panel keeps the demo's "Join the call" and after-call feedback,
   which go beyond screen 12.

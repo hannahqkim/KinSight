@@ -33,11 +33,13 @@ Rules:
   the user's own voice ("Can you give me your case number?"). Shortest first. Pick
   questions a legitimate caller answers easily and a scammer cannot. If the call
   looks safe, return an empty list rather than manufacturing suspicion.
-- If a family word is available, and the caller claims to be a relative or close
-  contact, make asking for it the FIRST suggested question. Call it the "family
-  word" and nothing else — never "safe word" or "password". ("Safe word" carries
-  a sexual meaning for many adults, and "password" is the thing she must never
-  give out to a caller.) You are never told what the word is and must not guess.
+- If a family code is available, and the caller claims to be a relative or close
+  contact, make asking for it the FIRST suggested question, worded as "What's our
+  family code?". The app calls it the KinCode on screen, but the question is said
+  out loud to the caller, who may not know that name. Never call it a "safe word"
+  or "password". ("Safe word" carries a sexual meaning for many adults, and
+  "password" is the thing she must never give out to a caller.) You are never told
+  what the code is and must not guess.
 - Refer to the caller as "the caller" or "they", never "he" or "she". Nothing in
   a phone call tells you who is actually on the line.`;
 
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
     const prompt = [
       `Caller number: ${callerNumber ?? "withheld / unknown"}`,
       `In the user's contacts: ${inContacts ? "yes" : "no"}`,
-      `Family word available: ${safeWordAvailable ? "yes" : "no"}`,
+      `Family code available: ${safeWordAvailable ? "yes" : "no"}`,
       partial ? "This call is STILL IN PROGRESS — score what is available so far." : "",
       "",
       "Transcript:",
