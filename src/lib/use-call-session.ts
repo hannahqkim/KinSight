@@ -51,6 +51,12 @@ export function useCallSession() {
   const [spamReport, setSpamReport] = useState<SpamReport | null>(null);
   const [stats, setStats] = useState<EvalStats | null>(null);
   const [pending, setPending] = useState(0);
+  /**
+   * Consecutive windows that transcribed to nothing. A muted or dead microphone
+   * looks exactly like a silent room from here, and both end with the screen
+   * saying "Listening." forever, so the count is surfaced rather than swallowed.
+   */
+  const [silentWindows, setSilentWindows] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const callIdRef = useRef<string>("");
@@ -84,7 +90,11 @@ export function useCallSession() {
           startMs: segment.startMs + chunk.offsetMs,
           endMs: segment.endMs + chunk.offsetMs,
         }));
-        if (!shifted.length) continue;
+        if (!shifted.length) {
+          setSilentWindows((n) => n + 1);
+          continue;
+        }
+        setSilentWindows(0);
 
         segmentsRef.current = [...segmentsRef.current, ...shifted];
         setSegments(segmentsRef.current);
@@ -130,6 +140,7 @@ export function useCallSession() {
       setSpamReport(null);
       setError(null);
       setPending(0);
+      setSilentWindows(0);
       setStatus("listening");
 
       // Registry lookup is deterministic and has no model call, so it lands
@@ -261,6 +272,7 @@ export function useCallSession() {
     setKinSummary(null);
     setSpamReport(null);
     setPending(0);
+    setSilentWindows(0);
     setError(null);
   }, []);
 
@@ -274,6 +286,7 @@ export function useCallSession() {
     spamReport,
     stats,
     pending,
+    silentWindows,
     error,
     start,
     stop,

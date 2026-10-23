@@ -59,8 +59,19 @@ export class MicSource implements AudioSource {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private running = false;
   private offsetMs = 0;
+  private audioContext: AudioContext | null = null;
+  private levelFrame: number | null = null;
 
-  constructor(private readonly windowMs = 8000) {}
+  /**
+   * `onLevel` reports the microphone's input level, 0 to 1, about 60 times a
+   * second. The screen needs it: the first transcript takes a window plus a
+   * model round trip, so without it there is nothing to distinguish a working
+   * microphone from a muted one for the first fifteen seconds of a call.
+   */
+  constructor(
+    private readonly windowMs = 8000,
+    private readonly onLevel?: (level: number) => void,
+  ) {}
 
   async start(onChunk: (chunk: AudioChunk) => void): Promise<void> {
     this.stream = await navigator.mediaDevices.getUserMedia({
@@ -68,6 +79,7 @@ export class MicSource implements AudioSource {
     });
     this.running = true;
     const mimeType = pickMimeType();
+    this.meter(this.stream);
 
     const cycle = () => {
       if (!this.running || !this.stream) return;
@@ -98,9 +110,46 @@ export class MicSource implements AudioSource {
     cycle();
   }
 
+  /** Root-mean-square of the live waveform, normalised and smoothed. */
+  private meter(stream: MediaStream): void {
+    if (!this.onLevel) return;
+    try {
+      const context = new AudioContext();
+      this.audioContext = context;
+      const analyser = context.createAnalyser();
+      analyser.fftSize = 1024;
+      context.createMediaStreamSource(stream).connect(analyser);
+
+      const samples = new Float32Array(analyser.fftSize);
+      let smoothed = 0;
+
+      const tick = () => {
+        if (!this.running) return;
+        analyser.getFloatTimeDomainData(samples);
+        let sum = 0;
+        for (const sample of samples) sum += sample * sample;
+        const rms = Math.sqrt(sum / samples.length);
+        // Speech sits well below 1.0, so scale it up and clamp.
+        const level = Math.min(1, rms * 6);
+        // Fast attack, slow release, so a syllable registers and does not flicker.
+        smoothed = level > smoothed ? level : smoothed * 0.85 + level * 0.15;
+        this.onLevel?.(smoothed);
+        this.levelFrame = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch {
+      // Metering is a nicety; never let it stop a call from being recorded.
+    }
+  }
+
   stop(): void {
     this.running = false;
     if (this.timer) clearTimeout(this.timer);
+    if (this.levelFrame !== null) cancelAnimationFrame(this.levelFrame);
+    this.levelFrame = null;
+    void this.audioContext?.close().catch(() => undefined);
+    this.audioContext = null;
+    this.onLevel?.(0);
     if (this.recorder && this.recorder.state !== "inactive") this.recorder.stop();
     this.stream?.getTracks().forEach((track) => track.stop());
     this.stream = null;

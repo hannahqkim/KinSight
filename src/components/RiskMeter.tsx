@@ -89,3 +89,37 @@ export function ListeningWave({ active }: { active: boolean }) {
     </div>
   );
 }
+
+/**
+ * Live microphone input level.
+ *
+ * The risk meter cannot move until a window has been recorded and a model has
+ * answered, which is fifteen seconds or so into a call. Until then this is the
+ * only thing on screen that proves KinSight is hearing anything — it tracks the
+ * waveform, so it moves while you talk and sits flat when the microphone is
+ * muted, dead, or pointed at a silent room.
+ */
+export function MicLevel({ level }: { level: number }) {
+  const lit = Math.round(level * 12);
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-7 items-end gap-[3px]" aria-hidden="true">
+        {Array.from({ length: 12 }, (_, i) => (
+          <div
+            key={i}
+            style={{
+              width: 5,
+              height: 8 + (i / 12) * 20,
+              borderRadius: 2,
+              background: i < lit ? BRAND.teal : BRAND.wash,
+              transition: "background 90ms linear",
+            }}
+          />
+        ))}
+      </div>
+      <div className="text-[16px] font-medium">
+        {lit > 0 ? "I can hear you." : "I can't hear anything yet."}
+      </div>
+    </div>
+  );
+}

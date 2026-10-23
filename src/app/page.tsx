@@ -11,7 +11,7 @@ import {
 } from "react";
 import { PhoneFrame } from "@/components/PhoneFrame";
 import { ReportBody } from "@/components/ReportBody";
-import { ListeningWave, RiskMeter } from "@/components/RiskMeter";
+import { ListeningWave, MicLevel, RiskMeter } from "@/components/RiskMeter";
 import { KinPanel } from "@/components/KinPanel";
 import { MicSource, ScriptedSource, type ScriptedSegment } from "@/lib/audio-sources";
 import { useCallSession } from "@/lib/use-call-session";
@@ -140,6 +140,7 @@ export default function Page() {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [scenarioId, setScenarioId] = useState("grandparent-scam");
   const [micError, setMicError] = useState<string | null>(null);
+  const [micLevel, setMicLevel] = useState(0);
   const [kinJoined, setKinJoined] = useState(false);
   const [kinSaysHangUp, setKinSaysHangUp] = useState(false);
   const [kinfirmed, setKinfirmed] = useState(false);
@@ -193,7 +194,7 @@ export default function Page() {
 
       const source =
         requested === "live"
-          ? new MicSource(8000)
+          ? new MicSource(8000, setMicLevel)
           : new ScriptedSource(scenario.segments, audioRef.current);
 
       try {
@@ -234,7 +235,8 @@ export default function Page() {
     return () => window.removeEventListener("keydown", onKey);
   }, [session, startCall, ringPhone]);
 
-  const { analysis, segments, report, pending, error, verification } = session;
+  const { analysis, segments, report, pending,
+    silentWindows, error, verification } = session;
   const knownScam = verification?.verdict === "known_fraud";
   const zone = safeWordFailed || knownScam ? "scam" : zoneFor(analysis?.riskLevel ?? null);
 
@@ -449,7 +451,7 @@ export default function Page() {
             </label>
             <div className="flex-grow" />
             <button
-              disabled={!wordInput.trim() || !toldFamily}
+              disabled={!wordInput.trim()}
               onClick={() => go("send")}
               className={`${KIN_BTN} disabled:opacity-30`}
               style={{ background: BRAND.slate, color: BRAND.white }}
@@ -737,6 +739,18 @@ export default function Page() {
                 <div className="text-[24px] font-bold leading-[32px]">
                   {kinJoined ? `${KIN} joined the call.` : `KinSight sent ${KIN} a message.`}
                 </div>
+              </div>
+            )}
+
+            {mode === "live" && !micError && (
+              <div className="rounded-[14px] px-4 py-3" style={{ background: BRAND.wash }}>
+                <MicLevel level={micLevel} />
+                {silentWindows >= 2 && (
+                  <div className="mt-2 text-[16px] font-medium">
+                    Nothing has come through the microphone yet. Check it is not muted, or
+                    press S for the recorded call.
+                  </div>
+                )}
               </div>
             )}
 
