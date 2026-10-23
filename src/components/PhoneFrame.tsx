@@ -8,10 +8,13 @@ import { BRAND } from "@/lib/risk";
  */
 export function PhoneFrame({
   children,
+  owner,
   background = BRAND.white,
   foreground = BRAND.slate,
 }: {
   children: ReactNode;
+  /** Whose phone this is (a first name), shown in the status bar: onboarding starts on the family member's. */
+  owner: string;
   background?: string;
   foreground?: string;
 }) {
@@ -29,7 +32,7 @@ export function PhoneFrame({
             style={{ color: foreground }}
           >
             <span>9:41</span>
-            <span className="tracking-[-0.04em]">KinSight.</span>
+            <span>{owner}</span>
           </div>
           <div className="flex-1 overflow-y-auto">{children}</div>
           <div className="flex justify-center pb-2 pt-1">

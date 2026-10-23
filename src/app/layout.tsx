@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 
-// Inter Tight only, per docs/design/README.md. Black 900 carries the verdicts.
-const interTight = Inter_Tight({
-  variable: "--font-inter-tight",
-  subsets: ["latin"],
-  weight: ["400", "500", "700", "800", "900"],
-});
+// No web font: the type is SF Pro, the iPhone system font, per
+// docs/design/README.md. It is what the elder already reads every day, and on
+// a real iPhone it follows the text size she has set.
 
 export const metadata: Metadata = {
   title: "KinSight",
@@ -16,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${interTight.variable} h-full antialiased`}>
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

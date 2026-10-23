@@ -1,9 +1,10 @@
 import type { FraudTactic, RiskLevel } from "@/lib/schema";
 
 /**
- * Brand tokens from docs/design/README.md. Five colours plus white, nothing
- * else. Applied as inline styles because the values are chosen at runtime from
- * the risk level, and Tailwind cannot see class names it never gets to read.
+ * Brand tokens from docs/design/README.md. Five colours plus white, and Slate
+ * wash (Dark Slate Grey at 6% on white) for card surfaces. Applied as inline
+ * styles because the values are chosen at runtime from the risk level, and
+ * Tailwind cannot see class names it never gets to read.
  */
 export const BRAND = {
   banana: "#FFF07C",
@@ -12,6 +13,7 @@ export const BRAND = {
   teal: "#81B29A",
   horizon: "#79ADDC",
   white: "#FFFFFF",
+  wash: "#F1F5F5",
 } as const;
 
 /**
@@ -20,6 +22,9 @@ export const BRAND = {
  * `critical` both read as "Likely a scam." The difference between them changes
  * `recommendedAction`, not what the elder is told — at that point the advice is
  * the same, and a fourth wording would only slow them down.
+ *
+ * Labels follow the copy review in docs/design/audit.md: plain words, an action
+ * whenever there is worry, and never a promise of safety.
  */
 export type Zone = "normal" | "ask" | "scam";
 
@@ -35,22 +40,22 @@ export const ZONE: Record<
   { label: string; sub: string; color: string; background: string; onBackground: string }
 > = {
   normal: {
-    label: "Sounds normal.",
-    sub: "Nothing has set off a warning yet.",
+    label: "Sounds OK so far.",
+    sub: "",
     color: BRAND.teal,
     background: BRAND.teal,
     onBackground: BRAND.white,
   },
   ask: {
-    label: "Something's off.",
-    sub: "Ask a question before you do anything.",
+    label: "Be careful.",
+    sub: "Don't give money or personal details.",
     color: BRAND.banana,
     background: BRAND.banana,
     onBackground: BRAND.slate,
   },
   scam: {
-    label: "Likely a scam.",
-    sub: "Do not send money or share details.",
+    label: "This sounds like a scam.",
+    sub: "Don't send money or share details.",
     color: BRAND.peach,
     background: BRAND.peach,
     onBackground: BRAND.white,
