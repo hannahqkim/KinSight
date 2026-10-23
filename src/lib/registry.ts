@@ -13,6 +13,7 @@
 import type { z } from "zod";
 import type { CallerCategory, RegistryMatch } from "@/lib/schema";
 import { getSpamReport } from "@/lib/store";
+import { databaseConfigured } from "@/lib/db.ts";
 
 type Category = z.infer<typeof CallerCategory>;
 type Match = z.infer<typeof RegistryMatch> & { officialCallbackNumber?: string };
@@ -57,10 +58,28 @@ export type RegistryLookup = {
 };
 
 export async function lookupNumber(phoneNumber: string): Promise<RegistryLookup> {
-  const reported = await getSpamReport(phoneNumber);
+  /*
+   * The seed lists are plain constants and need no database, so a missing or
+   * unhealthy one must not take number verification down with it. Before this,
+   * no DATABASE_URL meant /api/verify/number failed outright — the whole
+   * trusted-number check gone on any laptop without Postgres, and gone in
+   * production the moment the database hiccuped mid-call.
+   *
+   * Reports filed by other households are the part that needs the database.
+   * Lose them and the lookup is less informed, not broken.
+   */
+  let reportedCount = 0;
+  if (databaseConfigured()) {
+    try {
+      reportedCount = (await getSpamReport(phoneNumber))?.reportCount ?? 0;
+    } catch (cause) {
+      console.error("[kinsight] spam report lookup failed, using seed data only", cause);
+    }
+  }
+
   return {
     match: SEED[phoneNumber] ?? null,
-    spamReportCount: (FRAUD_LIST[phoneNumber] ?? 0) + (reported?.reportCount ?? 0),
+    spamReportCount: (FRAUD_LIST[phoneNumber] ?? 0) + reportedCount,
   };
 }
 
