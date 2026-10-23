@@ -32,15 +32,15 @@ type Scenario = {
  */
 type Screen =
   | "who" // 1 Natalie: who are you inviting?
-  | "word" // 2 Natalie: pick a family word
+  | "word" // 2 Natalie: pick the KinCode (the family code)
   | "send" // 3 Natalie: hello, call first, send
   | "yes" // 4 Margaret: turns it on
-  | "learn" // 5 Margaret: learns the family word
+  | "learn" // 5 Margaret: learns the KinCode
   | "incoming" // 6 Margaret: phone rings through KinSight
   | "answered" // 7 Margaret: answers, KinSight prompts her
   | "listening" // 8 Margaret: listening, live meter
-  | "ask" // 9 Margaret: ask for the family word
-  | "knew" // 9b Margaret: they knew the word
+  | "ask" // 9 Margaret: ask for the KinCode
+  | "knew" // 9b Margaret: Kinfirmed, they knew it
   | "hangup" // 10 Margaret: hang up
   | "done" // 11 Margaret: after the call
   | "report"; // police report draft, from screen 11
@@ -53,7 +53,7 @@ const SUGGESTED_WORDS = ["Bluebird", "Lighthouse", "Peppermint", "Sunflower", "H
 const NATALIE_SCREENS: Screen[] = ["who", "word", "send"];
 
 /**
- * The stored family word is client-only state. Reading it through
+ * The stored KinCode is client-only state. Reading it through
  * useSyncExternalStore (rather than in an effect) gives the server and the
  * hydrating client the same empty snapshot, so there is no mismatch.
  */
@@ -142,6 +142,7 @@ export default function Page() {
   const [micError, setMicError] = useState<string | null>(null);
   const [kinJoined, setKinJoined] = useState(false);
   const [kinSaysHangUp, setKinSaysHangUp] = useState(false);
+  const [kinfirmed, setKinfirmed] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [endedAsScam, setEndedAsScam] = useState(false);
 
@@ -177,6 +178,7 @@ export default function Page() {
     setSafeWordFailed(false);
     setKinJoined(false);
     setKinSaysHangUp(false);
+    setKinfirmed(false);
     setCallEnded(false);
     setEndedAsScam(false);
     setMicError(null);
@@ -379,7 +381,7 @@ export default function Page() {
           </div>
         )}
 
-        {/* 2 — Natalie: pick a family word */}
+        {/* 2 — Natalie: pick the KinCode */}
         {shown === "word" && (
           <div className="flex min-h-full flex-col gap-6 px-6 pb-8 pt-6">
             <div className="flex items-center justify-between">
@@ -388,17 +390,17 @@ export default function Page() {
             </div>
             <div className="flex flex-col gap-2">
               <h1 className="m-0 text-[36px] font-bold leading-[40px] tracking-[-0.02em]">
-                Pick a family word
+                Pick your KinCode
               </h1>
               <p className="m-0 text-[18px] font-medium leading-[28px]">
-                If a caller says they&apos;re family, KinSight has {elderCall} ask for this word.
-                Real family knows it. Scammers don&apos;t.
+                Your KinCode is a family code. If a caller says they&apos;re family, KinSight has{" "}
+                {elderCall} ask for it. Real family knows it. Scammers don&apos;t.
               </p>
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-baseline justify-between">
                 <label htmlFor="family-word" className="text-[16px] font-semibold">
-                  Family word
+                  KinCode
                 </label>
                 <button
                   onClick={() => {
@@ -492,7 +494,7 @@ export default function Page() {
                 </div>
               </div>
               <div className="text-[16px] font-semibold leading-[24px]">
-                Don&apos;t say the family word. KinSight shows it to {p.obj} privately.
+                Don&apos;t say the KinCode. KinSight shows it to {p.obj} privately.
               </div>
             </div>
             <div className="flex flex-col gap-1 rounded-[24px] p-4" style={{ background: BRAND.horizon }}>
@@ -581,10 +583,13 @@ export default function Page() {
           </div>
         )}
 
-        {/* 5 — Margaret: learns the family word */}
+        {/* 5 — Margaret: learns the KinCode */}
         {shown === "learn" && (
           <div className="flex min-h-full flex-col gap-6 px-6 pb-10 pt-16">
-            <div className="text-[24px] font-bold">Your family word</div>
+            <div className="flex flex-col">
+              <div className="text-[24px] font-bold">Your KinCode</div>
+              <div className="text-[18px] font-semibold">Your family code</div>
+            </div>
             <div className="flex flex-col gap-2 rounded-[24px] px-6 py-8" style={{ background: BRAND.banana }}>
               <div className="break-words text-[48px] font-bold leading-[48px] tracking-[-0.02em]">
                 {safeWord}
@@ -754,16 +759,17 @@ export default function Page() {
           </div>
         )}
 
-        {/* 9 — Margaret: ask for the family word */}
+        {/* 9 — Margaret: ask for the KinCode. Said out loud as "family code",
+            because a real relative may not know the app's name for it. */}
         {shown === "ask" && (
           <div className="flex min-h-full flex-col gap-6 px-6 pb-10 pt-12">
             <div className="text-[30px] font-bold">Ask:</div>
             <h1 className="m-0 text-[48px] font-bold leading-[48px] tracking-[-0.02em]">
-              &ldquo;{safeWord ? "What's our family word?" : fallbackQuestion}&rdquo;
+              &ldquo;{safeWord ? "What's our family code?" : fallbackQuestion}&rdquo;
             </h1>
             {safeWord && (
               <div className="flex flex-col gap-1 rounded-[24px] px-6 py-4" style={{ background: BRAND.white }}>
-                <div className="text-[18px] font-semibold">Only you can see this</div>
+                <div className="text-[18px] font-semibold">Your KinCode. Only you can see this.</div>
                 <div aria-hidden="true" className="break-words text-[36px] font-bold leading-[40px] tracking-[-0.02em]">
                   {safeWord}
                 </div>
@@ -771,7 +777,14 @@ export default function Page() {
             )}
             <div className="flex-grow" />
             <div className="flex flex-col gap-3">
-              <button onClick={() => go("knew")} className={ELDER_BTN} style={{ background: BRAND.slate, color: BRAND.white }}>
+              <button
+                onClick={() => {
+                  setKinfirmed(true);
+                  go("knew");
+                }}
+                className={ELDER_BTN}
+                style={{ background: BRAND.slate, color: BRAND.white }}
+              >
                 {safeWord ? `They said “${safeWord}”` : "They answered"}
               </button>
               <button
@@ -788,14 +801,18 @@ export default function Page() {
           </div>
         )}
 
-        {/* 9b — Margaret: they knew the word */}
+        {/* 9b — Margaret: Kinfirmed. Knowing the code proves only that they know
+            the code, so the screen still asks her to check before sending money. */}
         {shown === "knew" && (
           <div className="flex min-h-full flex-col gap-6 px-6 pb-10 pt-16">
             <Svg size={72} stroke={BRAND.slate}>
               <circle cx="12" cy="12" r="9" />
               <path d="M8 12.5 L10.8 15 L16 9.5" />
             </Svg>
-            <h1 className="m-0 text-[48px] font-bold leading-[48px] tracking-[-0.02em]">They knew the word.</h1>
+            <div className="flex flex-col gap-2">
+              <h1 className="m-0 text-[60px] font-bold leading-[60px] tracking-[-0.02em]">Kinfirmed.</h1>
+              <div className="text-[24px] font-bold leading-[32px]">They knew your KinCode.</div>
+            </div>
             <div className="rounded-[24px] p-6 text-[24px] font-bold leading-[32px]" style={{ background: BRAND.white }}>
               Before you send money, check with {KIN}.
             </div>
@@ -920,6 +937,7 @@ export default function Page() {
           spamReport={session.spamReport}
           stats={session.stats}
           toldHangUp={kinSaysHangUp}
+          kinfirmed={kinfirmed}
           onJoin={() => setKinJoined(true)}
           onTellHangUp={() => setKinSaysHangUp(true)}
           onFeedback={(verdict, notes) => void session.submitFeedback(verdict, notes)}

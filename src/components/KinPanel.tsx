@@ -35,6 +35,7 @@ export function KinPanel({
   spamReport,
   stats,
   toldHangUp,
+  kinfirmed,
   onJoin,
   onTellHangUp,
   onFeedback,
@@ -51,6 +52,8 @@ export function KinPanel({
   spamReport: SpamReport | null;
   stats: EvalStats | null;
   toldHangUp: boolean;
+  /** The caller gave the right KinCode on the elder's ask screen. */
+  kinfirmed: boolean;
   onJoin: () => void;
   onTellHangUp: () => void;
   onFeedback: (verdict: EvalVerdict, notes: string | null) => void;
@@ -110,6 +113,19 @@ export function KinPanel({
               <p className="m-0 text-[16px] font-medium leading-snug">
                 {analysis.plainLanguageWarning}
               </p>
+            )}
+
+            {kinfirmed && (
+              <div className="flex flex-col gap-1 rounded-[16px] p-4" style={{ background: BRAND.wash }}>
+                <div className="flex items-center gap-2 text-[16px] font-bold">
+                  <span className="h-3 w-3 rounded-full" style={{ background: BRAND.teal }} aria-hidden="true" />
+                  Kinfirmed
+                </div>
+                <div className="text-[15px] font-medium leading-snug">
+                  The caller knew {elderCall}&apos;s KinCode. KinSight is still listening in
+                  case they ask for money.
+                </div>
+              </div>
             )}
 
             {joined ? (
