@@ -3,18 +3,20 @@
 :root {
   --background: #ffffff;
   --foreground: #1c5253;
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    system-ui, "Helvetica Neue", Arial, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter-tight);
+  --font-sans: var(--font-system);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter-tight), system-ui, sans-serif;
+  font-family: var(--font-system);
 }
 
 /* The listening indicator on the live call screen. */

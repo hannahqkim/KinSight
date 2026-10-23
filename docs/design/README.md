@@ -98,14 +98,17 @@ during the call and end the call, but it cannot open itself when she answers.
 
 ## Differences from the demo in `src/`
 
-The clickable demo was built against the earlier design. To match this one:
+The clickable demo follows this flow, screens 1 to 12 and 9b, in SF Pro with
+the copy above. Where it still differs:
 
-- Font: Inter Tight to SF Pro (`-apple-system`).
-- "Safe word" to "family word" in UI copy (the schema's `safeWordAvailable`
-  field name is a separate decision).
-- Screens 1 to 5 (the family-led onboarding), 9b and 11 are new.
-- Live capture uses the browser microphone, which is fine for a demo but not
-  possible during a real iPhone call.
+- Live capture uses the browser microphone or a recorded call, which is fine
+  for a demo but not possible during a real iPhone call.
+- Recording Natalie's hello and the "Call Natalie" buttons need the iPhone
+  app; the demo says so on screen instead.
+- The family word stays in the browser and is never sent to the server; the
+  schema's `safeWordAvailable` field keeps its name.
+- Natalie's panel keeps the demo's "Join the call" and after-call feedback,
+  which go beyond screen 12.
 
 ## Open questions
 
