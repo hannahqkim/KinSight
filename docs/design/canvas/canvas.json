@@ -1,0 +1,23 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-23T12:00:00Z"},
+  "title": "KinSight Brand & Journey",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 1040, "title": "Brand foundations"},
+    "Journey.dc.html": {"x": 1360, "y": 0, "w": 1680, "h": 1040, "title": "User journey"},
+    "S1-Setup.dc.html": {"x": 0, "y": 1460, "w": 390, "h": 844, "title": "1 · Family setup"},
+    "S2-Incoming.dc.html": {"x": 470, "y": 1460, "w": 390, "h": 844, "title": "2 · Unknown caller"},
+    "S3-Listening.dc.html": {"x": 940, "y": 1460, "w": 390, "h": 844, "title": "3 · Listening (live)", "is_interactive": true},
+    "S4-Ask.dc.html": {"x": 1410, "y": 1460, "w": 390, "h": 844, "title": "4 · Ask this"},
+    "S5-Scam.dc.html": {"x": 1880, "y": 1460, "w": 390, "h": 844, "title": "5a · Likely scam"},
+    "S6-Safe.dc.html": {"x": 2350, "y": 1460, "w": 390, "h": 844, "title": "5b · Looks safe"}
+  },
+  "order": ["Main.dc.html", "Journey.dc.html", "S1-Setup.dc.html", "S2-Incoming.dc.html", "S3-Listening.dc.html", "S4-Ask.dc.html", "S5-Scam.dc.html", "S6-Safe.dc.html"],
+  "notes": {
+    "t1": {"x": 0, "y": -300, "text": "KinSight — brand & journey", "kind": "title1", "maxW": 3040},
+    "t2": {"x": 0, "y": 1160, "text": "Elder screens, call to verdict", "kind": "title1", "maxW": 2740}
+  },
+  "designSystems": []
+}
