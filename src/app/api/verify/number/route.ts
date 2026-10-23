@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     if ("response" in parsed) return parsed.response;
     const { phoneNumber, claimedCategory } = parsed.data;
 
-    const lookup = lookupNumber(phoneNumber);
+    const lookup = await lookupNumber(phoneNumber);
     const verdict = verdictFor(lookup, claimedCategory);
 
     const data = NumberVerification.parse({

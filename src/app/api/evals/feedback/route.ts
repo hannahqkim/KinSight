@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const parsed = await parseBody(request, EvalFeedbackRequest);
     if ("response" in parsed) return parsed.response;
 
-    return ok(recordEval(parsed.data));
+    return ok(await recordEval(parsed.data));
   } catch (error) {
     return handleError(error);
   }

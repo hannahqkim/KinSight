@@ -16,11 +16,11 @@ export async function POST(request: Request) {
     if ("response" in parsed) return parsed.response;
     const { phoneNumber, callId, tactics } = parsed.data;
 
-    const report = recordSpamReport({ phoneNumber, callId, tactics });
+    const report = await recordSpamReport({ phoneNumber, callId, tactics });
 
     // Re-read through the normal path so the client sees exactly what a fresh
     // /api/verify/number call would now return for this number.
-    const lookup = lookupNumber(phoneNumber);
+    const lookup = await lookupNumber(phoneNumber);
     const verification = NumberVerification.parse({
       phoneNumber,
       verdict: verdictFor(lookup),

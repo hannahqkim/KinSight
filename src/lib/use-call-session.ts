@@ -56,7 +56,9 @@ export function useCallSession() {
   const callIdRef = useRef<string>("");
   const sourceRef = useRef<AudioSource | null>(null);
   const segmentsRef = useRef<TranscriptSegment[]>([]);
-  const queueRef = useRef<AudioChunk[]>([]);
+  // Each window remembers which call recorded it, so a reply that lands after a
+  // restart or reset can be recognised as the previous call's and dropped.
+  const queueRef = useRef<(AudioChunk & { callId: string })[]>([]);
   const drainingRef = useRef(false);
   const optionsRef = useRef<StartOptions | null>(null);
 
@@ -66,13 +68,16 @@ export function useCallSession() {
 
     while (queueRef.current.length) {
       const chunk = queueRef.current.shift()!;
+      const { callId } = chunk;
+      const isCurrent = () => callId === callIdRef.current;
       try {
         const transcript = await postJson<Transcript>("/api/transcribe", {
-          callId: callIdRef.current,
+          callId,
           audioBase64: chunk.base64,
           mimeType: chunk.mimeType,
           language: "en-US",
         });
+        if (!isCurrent()) continue;
 
         const shifted = transcript.segments.map((segment) => ({
           ...segment,
@@ -86,20 +91,22 @@ export function useCallSession() {
 
         const options = optionsRef.current;
         const next = await postJson<CallAnalysis>("/api/calls/analyze", {
-          callId: callIdRef.current,
+          callId,
           segments: segmentsRef.current,
           callerNumber: options?.callerNumber ?? null,
           inContacts: options?.inContacts ?? false,
           safeWordAvailable: options?.safeWordAvailable ?? false,
           partial: true,
         });
+        if (!isCurrent()) continue;
         setAnalysis(next);
         setError(null);
       } catch (cause) {
         // One bad window must not end the call. Surface it and keep listening.
-        setError(cause instanceof Error ? cause.message : "analysis failed");
+        if (isCurrent()) setError(cause instanceof Error ? cause.message : "analysis failed");
       } finally {
-        setPending((n) => Math.max(0, n - 1));
+        // A previous call's window was already zeroed out of the count by start/reset.
+        if (isCurrent()) setPending((n) => Math.max(0, n - 1));
       }
     }
 
@@ -108,7 +115,8 @@ export function useCallSession() {
 
   const start = useCallback(
     async (options: StartOptions) => {
-      callIdRef.current = `call-${Date.now()}`;
+      const callId = `call-${Date.now()}`;
+      callIdRef.current = callId;
       segmentsRef.current = [];
       queueRef.current = [];
       optionsRef.current = options;
@@ -135,7 +143,7 @@ export function useCallSession() {
       }
 
       await options.source.start((chunk) => {
-        queueRef.current.push(chunk);
+        queueRef.current.push({ ...chunk, callId });
         setPending((n) => n + 1);
         void drain();
       });
@@ -241,6 +249,8 @@ export function useCallSession() {
   const reset = useCallback(() => {
     sourceRef.current?.stop();
     sourceRef.current = null;
+    // No call is current after a reset, so any reply still in flight is dropped.
+    callIdRef.current = "";
     segmentsRef.current = [];
     queueRef.current = [];
     setStatus("idle");
