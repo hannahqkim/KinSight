@@ -238,7 +238,21 @@ export default function Page() {
   const { analysis, segments, report, pending,
     silentWindows, error, verification } = session;
   const knownScam = verification?.verdict === "known_fraud";
-  const zone = safeWordFailed || knownScam ? "scam" : zoneFor(analysis?.riskLevel ?? null);
+  /**
+   * The registry deliberately does NOT set the zone.
+   *
+   * /api/verify/number answers in milliseconds, long before a word is recorded,
+   * so letting it force "scam" skipped the call entirely: no meter, no
+   * transcript, no question to ask, and Natalie's panel reading "Likely scam"
+   * beside the model's actual 5%. It also hard-blocks on an unauthenticated
+   * crowd list — numbers get recycled and anyone can file a report, so a wrong
+   * entry would hang up on a real caller forever, which is the failure that
+   * isolates the person this is for.
+   *
+   * A registry hit is strong evidence, so it warns loudly and wakes the family
+   * (see `kinAlerted`). What it does not do is decide the verdict on its own.
+   */
+  const zone = safeWordFailed ? "scam" : zoneFor(analysis?.riskLevel ?? null);
 
   /** Above the threshold the family is notified. */
   const kinAlerted =
@@ -751,6 +765,23 @@ export default function Page() {
                     press S for the recorded call.
                   </div>
                 )}
+              </div>
+            )}
+
+            {knownScam && verification && (
+              <div
+                role="status"
+                className="flex flex-col gap-1 rounded-[24px] p-4"
+                style={{ background: BRAND.peach, color: BRAND.white }}
+              >
+                <div className="text-[24px] font-bold leading-[32px]">
+                  Other families reported this number.
+                </div>
+                <div className="text-[18px] font-semibold">
+                  {verification.spamReportCount}{" "}
+                  {verification.spamReportCount === 1 ? "report" : "reports"}. Be careful, and
+                  do not send money.
+                </div>
               </div>
             )}
 
